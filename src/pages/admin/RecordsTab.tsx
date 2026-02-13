@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { StudentRecord, Profile, RecordStatus, RecordCategory } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter } from 'lucide-react';
+import { Loader2, Search, Grid3X3, List } from 'lucide-react';
 import StatusBadge from '@/components/features/StatusBadge';
 import CategoryBadge from '@/components/features/CategoryBadge';
 import RecordDetailsDialog from '@/components/features/RecordDetailsDialog';
@@ -26,6 +26,7 @@ export default function RecordsTab() {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [sectionFilter, setSectionFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   useEffect(() => {
     fetchRecords();
@@ -66,92 +67,122 @@ export default function RecordsTab() {
 
   return (
     <div className="space-y-6">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <p className="text-sm text-slate-600">Total Records</p>
+            <p className="text-2xl font-bold text-slate-900">{records.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <p className="text-sm text-slate-600">Pending</p>
+            <p className="text-2xl font-bold text-orange-600">{records.filter(r => r.status === 'pending').length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <p className="text-sm text-slate-600">Approved</p>
+            <p className="text-2xl font-bold text-green-600">{records.filter(r => r.status === 'approved').length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <p className="text-sm text-slate-600">Rejected</p>
+            <p className="text-2xl font-bold text-red-600">{records.filter(r => r.status === 'rejected').length}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters Card */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-slate-600">Showing <span className="font-semibold text-slate-900">{records.length}</span> records</div>
-              {errorMsg && (
-                <div className="ml-4 w-full md:w-auto">
-                  <Alert>
-                    <AlertDescription>
-                      <span className="font-medium">Data load error:</span> {errorMsg}. Ensure your .env is present and restart the dev server.
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="relative flex-1">
-                <label className="block text-xs font-semibold mb-1 text-slate-600">Search</label>
+        <CardHeader>
+          <CardTitle>Filters & Search</CardTitle>
+          <CardDescription>
+            Filter records by status, category, year, section, or search by student details
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {errorMsg && (
+              <Alert>
+                <AlertDescription>
+                  <span className="font-medium">Data load error:</span> {errorMsg}. Ensure your .env is present and restart the dev server.
+                </AlertDescription>
+              </Alert>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Search</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
-                    placeholder="By student name, ID, or record title..."
+                    placeholder="Student name, ID, or title..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     className="pl-10"
                   />
                 </div>
               </div>
-              <div className="flex gap-2 items-end flex-wrap">
-                <div className="flex flex-col">
-                  <label className="text-xs font-semibold mb-1 text-slate-600">Status</label>
-                  <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as any)} className="border rounded px-2 py-1 text-sm min-w-[110px]">
-                    <option value="all">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs font-semibold mb-1 text-slate-600">Category</label>
-                  <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value as any)} className="border rounded px-2 py-1 text-sm min-w-[110px]">
-                    <option value="all">All</option>
-                    <option value="academic">Academic</option>
-                    <option value="technical">Technical</option>
-                    <option value="sports">Sports</option>
-                    <option value="cultural">Cultural</option>
-                    <option value="social">Social</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs font-semibold mb-1 text-slate-600">Year</label>
-                  <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} className="border rounded px-2 py-1 text-sm min-w-[90px]">
-                    <option value="all">All</option>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Status</label>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as RecordStatus | 'all')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Category</label>
+                <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as RecordCategory | 'all')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="academic">Academic</SelectItem>
+                    <SelectItem value="technical">Technical</SelectItem>
+                    <SelectItem value="sports">Sports</SelectItem>
+                    <SelectItem value="cultural">Cultural</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Year</label>
+                <Select value={yearFilter} onValueChange={setYearFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Years</SelectItem>
                     {availableYears.map(y => (
-                      <option key={y} value={y}>{`Year ${y}`}</option>
+                      <SelectItem key={y} value={y.toString()}>Year {y}</SelectItem>
                     ))}
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs font-semibold mb-1 text-slate-600">Section</label>
-                  <select value={sectionFilter} onChange={e => setSectionFilter(e.target.value)} className="border rounded px-2 py-1 text-sm min-w-[90px]">
-                    <option value="all">All</option>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Section</label>
+                <Select value={sectionFilter} onValueChange={setSectionFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Sections" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sections</SelectItem>
                     {availableSections.map(s => (
-                      <option key={s} value={s}>{`Section ${s}`}</option>
+                      <SelectItem key={s} value={s.toString()}>Section {s}</SelectItem>
                     ))}
-                  </select>
-                </div>
-                <div className="flex flex-col justify-end">
-                  <button
-                    type="button"
-                    onClick={() => { setStatusFilter('all'); setCategoryFilter('all'); setYearFilter('all'); setSectionFilter('all'); }}
-                    className="text-xs px-2 py-1 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-                <div className="flex flex-col justify-end">
-                  <button
-                    type="button"
-                    onClick={fetchRecords}
-                    className="text-xs px-2 py-1 rounded border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700"
-                  >
-                    Refresh
-                  </button>
-                </div>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -162,48 +193,108 @@ export default function RecordsTab() {
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Records ({filteredRecords.length} of {records.length})
+            </h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4 mr-2" />
+                List
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid3X3 className="w-4 h-4 mr-2" />
+                Grid
+              </Button>
+            </div>
+          </div>
           {filteredRecords.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <p className="text-slate-500">No records found.</p>
+                <p className="text-slate-500">No records found matching the current filters.</p>
               </CardContent>
             </Card>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredRecords.map(record => (
+                <Card key={record.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-base font-semibold text-slate-900 truncate">{record.title}</h4>
+                        <StatusBadge status={record.status} />
+                        <CategoryBadge category={record.category} />
+                      </div>
+                      <div className="space-y-1 text-sm text-slate-600">
+                        <p><strong>Student:</strong> {record.student?.full_name}</p>
+                        <p><strong>ID:</strong> {record.student?.student_id || 'N/A'}</p>
+                        <p><strong>Year:</strong> {record.student?.year_of_study || 'N/A'} | <strong>Section:</strong> {record.student?.section || 'N/A'}</p>
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {new Date(record.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="flex gap-2 pt-2">
+                        {record.certificate_url && (
+                          <Button variant="outline" size="sm" asChild className="flex-1">
+                            <a href={record.certificate_url} target="_blank" rel="noopener noreferrer">
+                              Certificate
+                            </a>
+                          </Button>
+                        )}
+                        <Button variant="default" size="sm" onClick={() => setSelectedRecord(record)} className="flex-1">
+                          Details
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : (
             filteredRecords.map(record => (
-              <Card key={record.id} className="border border-slate-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    {record.title}
-                    <StatusBadge status={record.status} />
-                    <CategoryBadge category={record.category} />
-                    <Badge variant="secondary">{record.student?.full_name}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col md:flex-row md:items-center md:gap-6 gap-2">
+              <Card key={record.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="text-sm text-slate-600 mb-2">
-                        <span className="font-medium">Student ID:</span> {record.student?.student_id || 'N/A'}
-                        {' | '}
-                        <span className="font-medium">Year:</span> {record.student?.year_of_study || 'N/A'}
-                        {' | '}
-                        <span className="font-medium">Section:</span> {record.student?.section || 'N/A'}
+                      <div className="flex items-center gap-3 mb-2">
+                        <h4 className="text-lg font-semibold text-slate-900">{record.title}</h4>
+                        <StatusBadge status={record.status} />
+                        <CategoryBadge category={record.category} />
                       </div>
-                      <div className="text-xs text-slate-500 mb-2">
+                      <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                        <span><strong>Student:</strong> {record.student?.full_name}</span>
+                        <span><strong>ID:</strong> {record.student?.student_id || 'N/A'}</span>
+                        <span><strong>Year:</strong> {record.student?.year_of_study || 'N/A'}</span>
+                        <span><strong>Section:</strong> {record.student?.section || 'N/A'}</span>
+                      </div>
+                      <div className="text-sm text-slate-500 mb-3">
                         Submitted: {new Date(record.created_at).toLocaleString()}
                       </div>
-                      {record.certificate_url && (
-                        <Button variant="outline" asChild className="mt-2">
-                          <a href={record.certificate_url} target="_blank" rel="noopener noreferrer">
-                            View Certificate
-                          </a>
-                        </Button>
+                      {record.description && (
+                        <p className="text-sm text-slate-700 mb-3 line-clamp-2">{record.description}</p>
                       )}
+                      <div className="flex gap-2">
+                        {record.certificate_url && (
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={record.certificate_url} target="_blank" rel="noopener noreferrer">
+                              View Certificate
+                            </a>
+                          </Button>
+                        )}
+                        <Button variant="default" size="sm" onClick={() => setSelectedRecord(record)}>
+                          View Details
+                        </Button>
+                      </div>
                     </div>
-                    <Button variant="secondary" onClick={() => setSelectedRecord(record)}>
-                      View Details
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

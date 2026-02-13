@@ -22,6 +22,7 @@ export interface Profile {
   department?: string;
   year_of_study?: number;
   section?: string;
+  avatar?: string;
   created_at: string;
   updated_at: string;
 }
@@ -157,4 +158,40 @@ export interface ApprovalLog {
   action: 'submitted' | 'under_review' | 'approved' | 'rejected' | 'closed' | 'completed' | 'posted' | 'applied' | 'verified' | 'evaluated' | 'uploaded';
   notes?: string | null;
   created_at: string;
+}
+
+// Messaging system types
+export type MessageType = 'text' | 'image' | 'file';
+
+export interface Conversation {
+  id: string;
+  faculty_id: string;
+  student_id: string;
+  faculty?: Profile;
+  student?: Profile;
+  last_message?: Message;
+  unread_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  message_type: MessageType;
+  file_url?: string;
+  file_name?: string;
+  file_size?: number;
+  is_read: boolean;
+  sender?: Profile;
+  created_at: string;
+  // WhatsApp-like features
+  reply_to_id?: string;
+  reply_to?: Message;
+  is_edited?: boolean;
+  edited_at?: string;
+  deleted_for_sender?: boolean;
+  deleted_for_everyone?: boolean;
 }

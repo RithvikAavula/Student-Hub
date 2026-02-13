@@ -71,8 +71,8 @@ DropdownMenuTrigger.displayName = "DropdownMenuTrigger"
 
 const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { align?: "start" | "end" | "center"; forceMount?: boolean }
->(({ className, align = "center", forceMount, children, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { align?: "start" | "end" | "center"; side?: "top" | "bottom"; forceMount?: boolean }
+>(({ className, align = "center", side = "bottom", forceMount, children, ...props }, ref) => {
   const ctx = React.useContext(DropdownMenuContext)
   const open = ctx?.open ?? false
   const visibility = open ? "" : "hidden"
@@ -85,6 +85,8 @@ const DropdownMenuContent = React.forwardRef<
         "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
         align === "end" && "right-0",
         align === "start" && "left-0",
+        side === "top" && "bottom-full mb-2",
+        side === "bottom" && "top-full mt-1",
         visibility,
         className
       )}

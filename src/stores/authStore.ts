@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { AuthUser, Profile } from '@/types';
 
 interface AuthState {
@@ -12,13 +13,25 @@ interface AuthState {
   updateUser: (user: AuthUser) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  profile: null,
-  loading: true,
-  login: (user, profile) => set({ user, profile, loading: false }),
-  logout: () => set({ user: null, profile: null, loading: false }),
-  setLoading: (loading) => set({ loading }),
-  updateProfile: (profile) => set({ profile }),
-  updateUser: (user) => set({ user }),
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      profile: null,
+      loading: true,
+      login: (user, profile) => set({ user, profile, loading: false }),
+      logout: () => set({ user: null, profile: null, loading: false }),
+      setLoading: (loading) => set({ loading }),
+      updateProfile: (profile) => set({ profile }),
+      updateUser: (user) => set({ user }),
+    }),
+    {
+      name: 'student-hub-auth',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        user: state.user,
+        profile: state.profile,
+      }),
+    }
+  )
+);

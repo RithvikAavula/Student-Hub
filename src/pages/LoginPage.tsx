@@ -39,15 +39,25 @@ export default function LoginPage() {
 
         if (profileError) throw profileError;
 
+        // Convert avatar_path to public URL if it exists
+        let avatarUrl = data.user.user_metadata?.avatar_url;
+        const avatarPath = (profileData as any).avatar_path as string | undefined;
+        if (avatarPath) {
+          const { data: urlData } = supabase.storage.from('profile').getPublicUrl(avatarPath);
+          if (urlData?.publicUrl) {
+            avatarUrl = urlData.publicUrl;
+          }
+        }
+
         const authUser = {
           id: data.user.id,
           email: data.user.email!,
           username: profileData.full_name,
-          avatar: data.user.user_metadata?.avatar_url,
+          avatar: avatarUrl,
         };
 
         login(authUser, profileData);
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error: any) {
       toast({
@@ -60,26 +70,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background blobs */}
+      <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-blob" />
+      <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
+      
+      <div className="w-full max-w-md space-y-6 relative z-10">
+        <div className="text-center space-y-2 animate-fade-in-down">
           <div className="flex justify-center">
-            <div className="p-3 bg-primary rounded-2xl">
+            <div className="p-3 bg-gradient-to-br from-primary to-purple-600 rounded-2xl shadow-2xl shadow-primary/30 animate-float">
               <GraduationCap className="w-10 h-10 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Student Records Platform</h1>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">Student Records Platform</h1>
           <p className="text-muted-foreground">Sign in to access your dashboard</p>
         </div>
 
-        <Card>
+        <Card className="animate-fade-in-up backdrop-blur-sm bg-card/80 border-white/20 shadow-2xl hover:shadow-primary/10 transition-shadow duration-500">
           <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
+            <CardTitle className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">Welcome back</CardTitle>
             <CardDescription>Enter your credentials to continue</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-2 animate-fade-in-left stagger-1">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -89,9 +104,10 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 animate-fade-in-left stagger-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
@@ -100,9 +116,10 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] animate-fade-in-up stagger-3" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -113,8 +130,8 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-            <div className="mt-4 text-center">
-              <Button variant="link" onClick={() => navigate('/register')} disabled={loading}>
+            <div className="mt-4 text-center animate-fade-in stagger-4">
+              <Button variant="link" onClick={() => navigate('/register')} disabled={loading} className="hover:text-purple-600 transition-colors">
                 Don't have an account? Register
               </Button>
             </div>

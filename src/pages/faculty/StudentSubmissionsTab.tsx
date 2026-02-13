@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Profile, StudentRecord } from '@/types';
+import { Profile, StudentRecord, RecordCategory } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, FileText, Award, User, Filter } from 'lucide-react';
+import { ArrowLeft, FileText, Award, User, Filter, Grid3X3, List } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StatusBadge from '@/components/features/StatusBadge';
 import CategoryBadge from '@/components/features/CategoryBadge';
@@ -31,6 +31,8 @@ export default function StudentSubmissionsTab() {
   const [selectedRecord, setSelectedRecord] = useState<RecordWithStudent | null>(null);
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [sectionFilter, setSectionFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<RecordCategory | 'all'>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   useEffect(() => {
     fetchStudentsWithSubmissions();
@@ -136,6 +138,7 @@ export default function StudentSubmissionsTab() {
 
   const handleStudentClick = (student: StudentWithRecordCount) => {
     setSelectedStudent(student);
+    setCategoryFilter('all'); // Reset category filter when selecting a student
     fetchStudentRecords(student.id);
   };
 
@@ -156,9 +159,13 @@ export default function StudentSubmissionsTab() {
 
   // Show individual student's submissions
   if (selectedStudent) {
-    const pendingRecords = studentRecords.filter((r) => r.status === 'pending');
-    const approvedRecords = studentRecords.filter((r) => r.status === 'approved');
-    const rejectedRecords = studentRecords.filter((r) => r.status === 'rejected');
+    const filteredStudentRecords = studentRecords.filter((r) =>
+      categoryFilter === 'all' || r.category === categoryFilter
+    );
+
+    const pendingRecords = filteredStudentRecords.filter((r) => r.status === 'pending');
+    const approvedRecords = filteredStudentRecords.filter((r) => r.status === 'approved');
+    const rejectedRecords = filteredStudentRecords.filter((r) => r.status === 'rejected');
 
     return (
       <div className="space-y-6">
@@ -225,54 +232,74 @@ export default function StudentSubmissionsTab() {
           </Card>
         </div>
 
-        <div>
-          <h4 className="text-lg font-semibold mb-4">Submissions ({studentRecords.length})</h4>
-          {loadingRecords ? (
-            <div className="text-muted-foreground py-8 text-center">Loading submissions...</div>
-          ) : studentRecords.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <p className="text-muted-foreground text-center">
-                  No submissions from this student yet.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {studentRecords.map((record) => (
-                <Card
-                  key={record.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => setSelectedRecord(record)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <CategoryBadge category={record.category} />
-                          <StatusBadge status={record.status} />
-                        </div>
-                        <CardTitle className="text-xl">{record.title}</CardTitle>
-                        {record.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {record.description}
-                          </p>
-                        )}
-                      </div>
-                      {record.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedRecord(record);
-                          }}
-                        >
-                          Review
-                        </Button>
-                      )}
+        <div className="flex items-center justify-between">
+          <h4 className="text-lg font-semibold">Submissions ({filteredStudentRecords.length})</h4>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as RecordCategory | 'all')}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="academic">Academic</SelectItem>
+                <SelectItem value="sports">Sports</SelectItem>
+                <SelectItem value="cultural">Cultural</SelectItem>
+                <SelectItem value="social">Social</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex items-center border rounded-md">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="rounded-r-none"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className="rounded-l-none"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {loadingRecords ? (
+          <div className="text-muted-foreground py-8 text-center">Loading submissions...</div>
+        ) : filteredStudentRecords.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-muted-foreground text-center">
+                {studentRecords.length === 0 ? 'No submissions from this student yet.' : 'No submissions match the selected category filter.'}
+              </p>
+            </CardContent>
+          </Card>
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredStudentRecords.map((record) => (
+              <Card
+                key={record.id}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setSelectedRecord(record)}
+              >
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <CategoryBadge category={record.category} />
+                      <StatusBadge status={record.status} />
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                    <CardTitle className="text-lg">{record.title}</CardTitle>
+                    {record.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {record.description}
+                      </p>
+                    )}
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
                         {new Date(record.activity_date).toLocaleDateString('en-US', {
@@ -285,12 +312,76 @@ export default function StudentSubmissionsTab() {
                         <span className="font-semibold text-primary">{record.points} points</span>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                    {record.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRecord(record);
+                        }}
+                      >
+                        Review
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredStudentRecords.map((record) => (
+              <Card
+                key={record.id}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setSelectedRecord(record)}
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CategoryBadge category={record.category} />
+                        <StatusBadge status={record.status} />
+                      </div>
+                      <CardTitle className="text-xl">{record.title}</CardTitle>
+                      {record.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {record.description}
+                        </p>
+                      )}
+                    </div>
+                    {record.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRecord(record);
+                        }}
+                      >
+                        Review
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {new Date(record.activity_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    {record.points > 0 && (
+                      <span className="font-semibold text-primary">{record.points} points</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {selectedRecord && (
           <ReviewRecordDialog

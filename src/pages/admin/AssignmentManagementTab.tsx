@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,6 +42,7 @@ export default function AssignmentManagementTab() {
   const [filterYear, setFilterYear] = useState<string>('all');
   const [filterSection, setFilterSection] = useState<string>('all');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -78,9 +80,10 @@ export default function AssignmentManagementTab() {
 
       // Calculate faculty stats
       const facultyWithStats: FacultyWithStats[] = (facultyData || []).map((f) => {
-        const assignedStudentsCount = (studentsData || []).filter((s) =>
-          s.faculty_assignments?.some((a: any) => a.faculty_id === f.id)
-        ).length;
+        const assignedStudentsCount = (studentsData || []).filter((s) => {
+          const assignments = Array.isArray(s.faculty_assignments) ? s.faculty_assignments : (s.faculty_assignments ? [s.faculty_assignments] : []);
+          return assignments.some((a: any) => a.faculty_id === f.id);
+        }).length;
         const departmentStudentsCount = (studentsData || []).filter(
           (s) => s.department === f.department
         ).length;
@@ -172,11 +175,7 @@ export default function AssignmentManagementTab() {
   };
 
   const handleFacultyClick = (facultyMember: FacultyWithStats) => {
-    setSelectedFaculty(facultyMember);
-    setSelectedStudents([]);
-    setFilterYear('all');
-    setFilterSection('all');
-    setShowStudentDialog(true);
+    navigate(`/admin/faculty/${facultyMember.id}`);
   };
 
   const toggleStudentSelection = (studentId: string) => {
@@ -234,18 +233,21 @@ export default function AssignmentManagementTab() {
   };
 
   const getAssignedStudents = (facultyId: string) => {
-    return students.filter((s) =>
-      s.faculty_assignments?.some((a) => a.faculty_id === facultyId)
-    );
+    return students.filter((s) => {
+      const assignments = Array.isArray(s.faculty_assignments) ? s.faculty_assignments : (s.faculty_assignments ? [s.faculty_assignments] : []);
+      return assignments.some((a) => a.faculty_id === facultyId);
+    });
   };
 
   const hasAssignedFaculty = (student: StudentWithAssignments) => {
-    return student.faculty_assignments && student.faculty_assignments.length > 0;
+    const assignments = Array.isArray(student.faculty_assignments) ? student.faculty_assignments : (student.faculty_assignments ? [student.faculty_assignments] : []);
+    return assignments.length > 0;
   };
 
   const getAssignedFacultyName = (student: StudentWithAssignments) => {
-    if (student.faculty_assignments && student.faculty_assignments.length > 0) {
-      return student.faculty_assignments[0].faculty?.full_name || 'Unknown';
+    const assignments = Array.isArray(student.faculty_assignments) ? student.faculty_assignments : (student.faculty_assignments ? [student.faculty_assignments] : []);
+    if (assignments.length > 0) {
+      return assignments[0].faculty?.full_name || 'Unknown';
     }
     return null;
   };

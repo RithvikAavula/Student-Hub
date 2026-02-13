@@ -74,21 +74,26 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background blobs */}
+      <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-blob" />
+      <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
+      
+      <div className="w-full max-w-md space-y-6 relative z-10">
+        <div className="text-center space-y-2 animate-fade-in-down">
           <div className="flex justify-center">
-            <div className="p-3 bg-primary rounded-2xl">
+            <div className="p-3 bg-gradient-to-br from-primary to-purple-600 rounded-2xl shadow-2xl shadow-primary/30 animate-float">
               <GraduationCap className="w-10 h-10 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">Create Account</h1>
           <p className="text-muted-foreground">Register to access the platform</p>
         </div>
 
-        <Card>
+        <Card className="animate-fade-in-up backdrop-blur-sm bg-card/80 border-white/20 shadow-2xl hover:shadow-primary/10 transition-shadow duration-500">
           <CardHeader>
-            <CardTitle>Register</CardTitle>
+            <CardTitle className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">Register</CardTitle>
             <CardDescription>Fill in your details to create an account</CardDescription>
           </CardHeader>
           <CardContent>
@@ -103,6 +108,7 @@ export default function RegisterPage() {
                   onChange={(e) => setFullName(e.target.value)}
                   required
                   disabled={loading}
+                  className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                 />
               </div>
               <div className="space-y-2">
@@ -115,6 +121,7 @@ export default function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                 />
               </div>
               <div className="space-y-2">
@@ -127,12 +134,13 @@ export default function RegisterPage() {
                   required
                   disabled={loading}
                   minLength={6}
+                  className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select value={role} onValueChange={(value) => setRole(value as UserRole)} disabled={loading}>
-                  <SelectTrigger id="role">
+                  <SelectTrigger id="role" className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -143,7 +151,7 @@ export default function RegisterPage() {
                 </Select>
               </div>
               {role === 'student' && (
-                <div className="space-y-2">
+                <div className="space-y-2 animate-fade-in-up">
                   <Label htmlFor="studentId">Student ID</Label>
                   <Input
                     id="studentId"
@@ -153,12 +161,13 @@ export default function RegisterPage() {
                     onChange={(e) => setStudentId(e.target.value)}
                     required
                     disabled={loading}
+                    className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                   />
                 </div>
               )}
               {role === 'student' && (
                 <>
-                  <div className="space-y-2">
+                  <div className="space-y-2 animate-fade-in-up">
                     <Label htmlFor="department">Department <span className="text-destructive">*</span></Label>
                     <Input
                       id="department"
@@ -168,12 +177,13 @@ export default function RegisterPage() {
                       onChange={(e) => setDepartment(e.target.value)}
                       required
                       disabled={loading}
+                      className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 animate-fade-in-up">
                     <Label htmlFor="yearOfStudy">Year of Study <span className="text-destructive">*</span></Label>
                     <Select value={yearOfStudy} onValueChange={setYearOfStudy} disabled={loading} required>
-                      <SelectTrigger id="yearOfStudy">
+                      <SelectTrigger id="yearOfStudy" className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10">
                         <SelectValue placeholder="Select year" />
                       </SelectTrigger>
                       <SelectContent>
@@ -184,7 +194,7 @@ export default function RegisterPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 animate-fade-in-up">
                     <Label htmlFor="section">Section <span className="text-destructive">*</span></Label>
                     <Input
                       id="section"
@@ -194,12 +204,13 @@ export default function RegisterPage() {
                       onChange={(e) => setSection(e.target.value)}
                       required
                       disabled={loading}
+                      className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                     />
                   </div>
                 </>
               )}
               {role !== 'student' && (
-                <div className="space-y-2">
+                <div className="space-y-2 animate-fade-in-up">
                   <Label htmlFor="department">Department (Optional)</Label>
                   <Input
                     id="department"
@@ -208,10 +219,11 @@ export default function RegisterPage() {
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
                     disabled={loading}
+                    className="transition-all duration-300 focus:scale-[1.01] focus:shadow-lg focus:shadow-primary/10"
                   />
                 </div>
               )}
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02]" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -223,7 +235,7 @@ export default function RegisterPage() {
               </Button>
             </form>
             <div className="mt-4 text-center">
-              <Button variant="link" onClick={() => navigate('/login')} disabled={loading}>
+              <Button variant="link" onClick={() => navigate('/login')} disabled={loading} className="hover:text-purple-600 transition-colors">
                 Already have an account? Sign in
               </Button>
             </div>

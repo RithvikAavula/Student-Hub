@@ -3,8 +3,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { StudentRecord, RecordCategory } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, LayoutGrid, List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,9 +20,6 @@ export default function RecordsTab() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<StudentRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<'all' | RecordCategory>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
-  const [sectionFilter, setSectionFilter] = useState<string | 'all'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
@@ -54,10 +49,9 @@ export default function RecordsTab() {
 
   const fetchRecords = async () => {
     try {
-      // include student profile section so we can filter by section if needed
       const { data, error } = await supabase
         .from('student_records')
-        .select(`*, student:profiles!student_records_student_id_fkey(section)`)
+        .select('*')
         .eq('student_id', user?.id)
         .order('created_at', { ascending: false });
 
@@ -65,11 +59,6 @@ export default function RecordsTab() {
 
       if (error) throw error;
       setRecords(data || []);
-      // populate section filter options if available
-      const sections = Array.from(new Set((data || []).map((r: any) => r.student?.section).filter(Boolean)));
-      if (sections.length > 0 && sectionFilter === 'all') {
-        // if student has a section, keep 'all' but ensure option exists in UI
-      }
     } catch (error: any) {
       toast({
         title: 'Error fetching records',
@@ -83,15 +72,7 @@ export default function RecordsTab() {
   };
 
   const filteredRecords = records
-    .filter((r) => (activeCategory === 'all' ? true : r.category === activeCategory))
-    .filter((r) => (statusFilter === 'all' ? true : r.status === statusFilter))
-    .filter((r) => (sectionFilter === 'all' ? true : (r as any).student?.section === sectionFilter))
-    .filter((r) =>
-      searchTerm.trim()
-        ? (r.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (r.description || '').toLowerCase().includes(searchTerm.toLowerCase())
-        : true
-    );
+    .filter((r) => (activeCategory === 'all' ? true : r.category === activeCategory));
 
   const categories: Array<'all' | RecordCategory> = [
     'all',
@@ -141,38 +122,6 @@ export default function RecordsTab() {
           </TabsList>
 
             <div className="flex items-center gap-3 mt-3 md:mt-0">
-              <div className="flex items-center bg-white border rounded-md px-2 py-1 shadow-sm">
-                <Input
-                  placeholder="Search records..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="text-sm w-56 border-0 p-0 bg-transparent"
-                />
-              </div>
-
-              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Status: All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={sectionFilter} onValueChange={(v) => setSectionFilter(v as any)}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Section: All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All sections</SelectItem>
-                  {Array.from(new Set(records.map((r: any) => r.student?.section).filter(Boolean))).map((s) => (
-                    <SelectItem key={s} value={s}>{`Section ${s}`}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
 
               <div className="flex items-center gap-2">
                 <button
@@ -193,10 +142,6 @@ export default function RecordsTab() {
                 >
                   <List className="w-4 h-4" />
                 </button>
-
-                <Button variant="outline" size="sm" onClick={() => fetchRecords()}>
-                  Refresh
-                </Button>
               </div>
               </div>
         </div>
