@@ -24,6 +24,7 @@ import { NotebookText, Users, User, LayoutDashboard, MessageCircle, BarChart3 } 
 import FacultyAnalyticsDashboard from './FacultyAnalyticsDashboard';
 import { ThemeToggle } from '@/components/theme/ThemeProvider';
 import { MorphingBlob } from '@/components/motion';
+import FacultyNotifications from '@/components/features/FacultyNotifications';
 
 // Tab content animation variants
 const contentVariants = {
@@ -42,8 +43,26 @@ const menuItemVariants = {
   })
 };
 
+interface SelectedNotification {
+  studentId: string;
+  recordId: string;
+}
+
 export default function FacultyDashboard() {
   const [activeTab, setActiveTab] = useState('submissions');
+  const [selectedNotification, setSelectedNotification] = useState<SelectedNotification | null>(null);
+
+  // Handle notification click with navigation to specific record
+  const handleNotificationClick = (tab: string, data?: SelectedNotification) => {
+    setSelectedNotification(data || null);
+    setActiveTab(tab);
+  };
+
+  // Clear selected notification when changing tabs manually
+  const handleTabChange = (tabId: string) => {
+    setSelectedNotification(null);
+    setActiveTab(tabId);
+  };
 
   const menuItems = [
     { id: 'submissions', label: 'Student Submissions', icon: LayoutDashboard },
@@ -56,7 +75,11 @@ export default function FacultyDashboard() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'submissions': return <StudentSubmissionsTab />;
+      case 'submissions': return <StudentSubmissionsTab 
+        initialStudentId={selectedNotification?.studentId}
+        initialRecordId={selectedNotification?.recordId}
+        onNavigationComplete={() => setSelectedNotification(null)}
+      />;
       case 'records': return <ReviewRecordsTab />;
       case 'messages': return <WhatsAppMessages userRole="faculty" />;
       case 'students': return <AssignedStudentsTab />;
@@ -83,7 +106,7 @@ export default function FacultyDashboard() {
                       animate="visible"
                     >
                       <SidebarMenuButton
-                        onClick={() => setActiveTab(item.id)}
+                        onClick={() => handleTabChange(item.id)}
                         isActive={activeTab === item.id}
                         size="lg"
                         className="transition-all duration-300 hover:translate-x-1 group relative"
@@ -142,7 +165,8 @@ export default function FacultyDashboard() {
                   >
                     Faculty Dashboard
                   </motion.h2>
-                  <div className="ml-auto">
+                  <div className="ml-auto flex items-center gap-2">
+                    <FacultyNotifications onNotificationClick={handleNotificationClick} />
                     <ThemeToggle />
                   </div>
                 </div>
@@ -163,7 +187,8 @@ export default function FacultyDashboard() {
                 animate={{ opacity: 1 }}
               >
                 <SidebarTrigger className="h-9 w-9 hover:scale-110 transition-transform" />
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-2">
+                  <FacultyNotifications onNotificationClick={setActiveTab} />
                   <ThemeToggle />
                 </div>
               </motion.div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { Profile, StudentRecord, RecordCategory } from '@/types';
@@ -20,7 +20,17 @@ interface StudentWithRecordCount extends Profile {
   pendingCount: number;
 }
 
-export default function StudentSubmissionsTab() {
+interface StudentSubmissionsTabProps {
+  initialStudentId?: string;
+  initialRecordId?: string;
+  onNavigationComplete?: () => void;
+}
+
+export default function StudentSubmissionsTab({ 
+  initialStudentId, 
+  initialRecordId,
+  onNavigationComplete 
+}: StudentSubmissionsTabProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [students, setStudents] = useState<StudentWithRecordCount[]>([]);
@@ -33,10 +43,76 @@ export default function StudentSubmissionsTab() {
   const [sectionFilter, setSectionFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<RecordCategory | 'all'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  
+  // Track if we've handled the initial navigation
+  const hasHandledInitialNav = useRef(false);
 
   useEffect(() => {
     fetchStudentsWithSubmissions();
   }, [user]);
+
+  // Handle initial navigation from notification
+  useEffect(() => {
+    if (initialStudentId && initialRecordId && !hasHandledInitialNav.current && !loading) {
+      hasHandledInitialNav.current = true;
+      navigateToRecord(initialStudentId, initialRecordId);
+    }
+  }, [initialStudentId, initialRecordId, loading]);
+
+  // Reset the ref when props change
+  useEffect(() => {
+    if (!initialStudentId || !initialRecordId) {
+      hasHandledInitialNav.current = false;
+    }
+  }, [initialStudentId, initialRecordId]);
+
+  // Navigate to a specific record
+  const navigateToRecord = async (studentId: string, recordId: string) => {
+    try {
+      // Fetch student profile
+      const { data: studentProfile, error: studentError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', studentId)
+        .single();
+
+      if (studentError) throw studentError;
+
+      // Set the selected student
+      setSelectedStudent(studentProfile);
+
+      // Fetch student records
+      const { data: records, error: recordError } = await supabase
+        .from('student_records')
+        .select(`
+          *,
+          student:profiles!student_records_student_id_fkey(*)
+        `)
+        .eq('student_id', studentId)
+        .order('created_at', { ascending: false });
+
+      if (recordError) throw recordError;
+
+      setStudentRecords(records || []);
+
+      // Find and select the specific record
+      const targetRecord = (records || []).find(r => r.id === recordId);
+      if (targetRecord) {
+        setSelectedRecord(targetRecord);
+      }
+
+      // Call completion callback
+      onNavigationComplete?.();
+    } catch (error: any) {
+      console.error('Error navigating to record:', error);
+      toast({
+        title: 'Error',
+        description: 'Could not navigate to the selected submission',
+        variant: 'destructive',
+      });
+      onNavigationComplete?.();
+    }
+  };
 
   const fetchStudentsWithSubmissions = async () => {
     try {
