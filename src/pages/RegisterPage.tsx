@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { UserRole } from '@/types';
 
 export default function RegisterPage() {
@@ -77,17 +77,21 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background blobs */}
       <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-blob" />
-      <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
-      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
+      <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-accent/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
       
       <div className="w-full max-w-md space-y-6 relative z-10">
         <div className="text-center space-y-2 animate-fade-in-down">
           <div className="flex justify-center">
-            <div className="p-3 bg-gradient-to-br from-primary to-purple-600 rounded-2xl shadow-2xl shadow-primary/30 animate-float">
-              <GraduationCap className="w-10 h-10 text-primary-foreground" />
+            <div className="w-16 h-16 animate-float">
+              <img 
+                src="https://res.cloudinary.com/dfnpgl0bb/image/upload/v1771046687/ChatGPT_Image_Feb_14_2026_10_54_24_AM_k20wkr.png" 
+                alt="Student Hub Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">Create Account</h1>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Create Account</h1>
           <p className="text-muted-foreground">Register to access the platform</p>
         </div>
 

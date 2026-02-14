@@ -12,25 +12,25 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     
-    /* Primary gradient system */
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --primary-light: 221.2 83.2% 70%;
-    --primary-dark: 221.2 83.2% 40%;
+    /* Primary - Instagram Orange */
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 30 95% 63%;
+    --primary-dark: 20 95% 45%;
     
     /* Secondary */
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 30 30% 96%;
+    --secondary-foreground: 25 70% 20%;
     
-    /* Accent colors */
-    --accent: 280 87% 65%;
+    /* Accent - Instagram Pink/Magenta */
+    --accent: 339 75% 54%;
     --accent-foreground: 0 0% 100%;
-    --accent-light: 280 87% 80%;
-    --accent-dark: 280 87% 50%;
+    --accent-light: 339 75% 65%;
+    --accent-dark: 339 75% 45%;
     
     /* Semantic colors */
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 20% 96%;
+    --muted-foreground: 25 10% 45%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --success: 142.1 76.2% 36.3%;
@@ -41,23 +41,23 @@
     --info-foreground: 210 40% 98%;
     
     /* UI elements */
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 30 20% 90%;
+    --input: 30 20% 90%;
+    --ring: 25 95% 53%;
     --radius: 0.75rem;
     
     /* Chart colors */
-    --chart-1: 221.2 83.2% 53.3%;
-    --chart-2: 142.1 76.2% 36.3%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 280 87% 65%;
-    --chart-5: 340 82% 52%;
+    --chart-1: 25 95% 53%;
+    --chart-2: 339 75% 54%;
+    --chart-3: 37 96% 63%;
+    --chart-4: 277 50% 47%;
+    --chart-5: 142.1 76.2% 36.3%;
     --chart-6: 199 89% 48%;
     
-    /* Gradient colors */
-    --gradient-start: 221.2 83.2% 53.3%;
-    --gradient-middle: 280 87% 65%;
-    --gradient-end: 340 82% 52%;
+    /* Gradient colors - Instagram style */
+    --gradient-start: 37 96% 63%;
+    --gradient-middle: 25 95% 53%;
+    --gradient-end: 339 75% 54%;
     
     /* Glass effects */
     --glass-bg: rgba(255, 255, 255, 0.8);
@@ -84,52 +84,52 @@
 
   .dark {
     /* Core colors - Dark Mode */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 7%;
-    --popover-foreground: 210 40% 98%;
+    --background: 20 15% 6%;
+    --foreground: 30 20% 98%;
+    --card: 20 15% 9%;
+    --card-foreground: 30 20% 98%;
+    --popover: 20 15% 9%;
+    --popover-foreground: 30 20% 98%;
     
-    /* Primary gradient system */
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --primary-light: 217.2 91.2% 70%;
-    --primary-dark: 217.2 91.2% 45%;
+    /* Primary - Instagram Orange (brighter for dark) */
+    --primary: 25 95% 58%;
+    --primary-foreground: 20 15% 6%;
+    --primary-light: 30 95% 68%;
+    --primary-dark: 20 95% 50%;
     
     /* Secondary */
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 20 20% 15%;
+    --secondary-foreground: 30 20% 98%;
     
-    /* Accent colors */
-    --accent: 280 87% 70%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --accent-light: 280 87% 80%;
-    --accent-dark: 280 87% 55%;
+    /* Accent - Instagram Pink/Magenta */
+    --accent: 339 80% 60%;
+    --accent-foreground: 20 15% 6%;
+    --accent-light: 339 80% 70%;
+    --accent-dark: 339 80% 50%;
     
     /* Semantic colors */
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 20 20% 15%;
+    --muted-foreground: 30 15% 60%;
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 210 40% 98%;
     --success: 142.1 70.6% 45.3%;
-    --success-foreground: 222.2 84% 4.9%;
+    --success-foreground: 20 15% 6%;
     --warning: 38 92% 55%;
-    --warning-foreground: 222.2 84% 4.9%;
+    --warning-foreground: 20 15% 6%;
     --info: 199 89% 55%;
-    --info-foreground: 222.2 84% 4.9%;
+    --info-foreground: 20 15% 6%;
     
     /* UI elements */
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 20 20% 18%;
+    --input: 20 20% 18%;
+    --ring: 25 95% 58%;
     
     /* Chart colors - brighter for dark mode */
-    --chart-1: 217.2 91.2% 65%;
-    --chart-2: 142.1 76.2% 50%;
-    --chart-3: 38 92% 60%;
-    --chart-4: 280 87% 70%;
-    --chart-5: 340 82% 60%;
+    --chart-1: 25 95% 58%;
+    --chart-2: 339 80% 60%;
+    --chart-3: 37 96% 63%;
+    --chart-4: 277 60% 55%;
+    --chart-5: 142.1 76.2% 50%;
     --chart-6: 199 89% 55%;
     
     /* Glass effects */
@@ -600,12 +600,30 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, hsl(var(--primary) / 0.6), hsl(280, 87%, 65%, 0.6));
+  background: linear-gradient(180deg, hsl(var(--primary) / 0.6), hsl(var(--accent) / 0.6));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(var(--primary)), hsl(280, 87%, 65%));
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
+}
+
+/* Thin scrollbar for dialogs and smaller containers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.4);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
 }
 
 /* ========== SELECTION STYLING ========== */

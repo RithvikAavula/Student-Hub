@@ -11,8 +11,8 @@ import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } fr
 import { ThemeToggle } from '@/components/theme/ThemeProvider';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { MorphingBlob, CountUp } from '@/components/motion';
+import { supabase } from '@/lib/supabase';
 import { 
-  GraduationCap, 
   Users, 
   BarChart3, 
   MessageCircle, 
@@ -99,18 +99,17 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
           <motion.div
-            className="relative w-10 h-10 bg-gradient-to-br from-primary via-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/25"
-            whileHover={shouldReduceMotion ? {} : { scale: 1.05, rotate: 5 }}
+            className="relative w-14 h-14 flex items-center justify-center"
+            whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           >
-            <GraduationCap className="w-6 h-6 text-primary-foreground" />
-            <motion.div
-              className="absolute inset-0 rounded-xl bg-white/20"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
+            <img 
+              src="https://res.cloudinary.com/dfnpgl0bb/image/upload/v1771046687/ChatGPT_Image_Feb_14_2026_10_54_24_AM_k20wkr.png" 
+              alt="Student Hub Logo" 
+              className="w-full h-full object-contain"
             />
           </motion.div>
-          <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
             Student Hub
           </span>
         </Link>
@@ -208,7 +207,7 @@ const HeroSection = () => {
               Empower Your
             </span>
             <br />
-            <span className="text-primary">
+            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               Academic Journey
             </span>
           </motion.h1>
@@ -480,16 +479,92 @@ const FeaturesSection = () => {
 // STATS SECTION
 // ============================================
 
-const stats = [
-  { value: 10000, suffix: '+', label: 'Active Students' },
-  { value: 500, suffix: '+', label: 'Faculty Members' },
-  { value: 50000, suffix: '+', label: 'Records Managed' },
-  { value: 99.9, suffix: '%', label: 'Uptime' },
-];
-
 const StatsSection = () => {
+  const [stats, setStats] = useState([
+    { value: 0, suffix: '+', label: 'Active Students' },
+    { value: 0, suffix: '+', label: 'Faculty Members' },
+    { value: 0, suffix: '+', label: 'Records Managed' },
+    { value: 0, suffix: '', label: 'Departments' },
+  ]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Try calling the public stats function first
+        const { data, error } = await supabase.rpc('get_public_stats');
+
+        if (error) {
+          console.error('RPC error (function may not exist yet):', error);
+          // Fallback: try direct queries with service role or show demo data
+          await fetchStatsDirectly();
+          return;
+        }
+
+        if (data) {
+          console.log('Stats fetched successfully:', data);
+          setStats([
+            { value: data.students || 0, suffix: '+', label: 'Active Students' },
+            { value: data.faculty || 0, suffix: '+', label: 'Faculty Members' },
+            { value: data.records || 0, suffix: '+', label: 'Records Managed' },
+            { value: data.departments || 0, suffix: '', label: 'Departments' },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        await fetchStatsDirectly();
+      }
+    };
+
+    const fetchStatsDirectly = async () => {
+      try {
+        // Try fetching with select count - may work for some tables
+        const [studentsRes, facultyRes, recordsRes] = await Promise.all([
+          supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
+          supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'faculty'),
+          supabase.from('student_records').select('id', { count: 'exact', head: true }),
+        ]);
+
+        const students = studentsRes.count || 0;
+        const faculty = facultyRes.count || 0;
+        const records = recordsRes.count || 0;
+
+        console.log('Direct query results:', { students, faculty, records });
+
+        // If we got some data, use it
+        if (students > 0 || faculty > 0 || records > 0) {
+          setStats([
+            { value: students, suffix: '+', label: 'Active Students' },
+            { value: faculty, suffix: '+', label: 'Faculty Members' },
+            { value: records, suffix: '+', label: 'Records Managed' },
+            { value: 4, suffix: '', label: 'Departments' },
+          ]);
+        } else {
+          // Show demo placeholder data for better UX
+          console.log('No data accessible, showing demo values');
+          setStats([
+            { value: 250, suffix: '+', label: 'Active Students' },
+            { value: 35, suffix: '+', label: 'Faculty Members' },
+            { value: 1200, suffix: '+', label: 'Records Managed' },
+            { value: 4, suffix: '', label: 'Departments' },
+          ]);
+        }
+      } catch (err) {
+        console.error('Direct query failed:', err);
+        // Fallback demo data
+        setStats([
+          { value: 250, suffix: '+', label: 'Active Students' },
+          { value: 35, suffix: '+', label: 'Faculty Members' },
+          { value: 1200, suffix: '+', label: 'Records Managed' },
+          { value: 4, suffix: '', label: 'Departments' },
+        ]);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
-    <section className="py-20 bg-gradient-to-r from-primary via-primary to-info relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-r from-primary via-accent to-primary relative overflow-hidden">
       {/* Background patterns */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-40 h-40 border border-white/30 rounded-full -translate-x-1/2 -translate-y-1/2" />
@@ -650,19 +725,22 @@ const CTASection = () => {
           
           <div className="relative bg-card rounded-2xl border shadow-xl p-8 md:p-12">
             <motion.div
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-info mb-6"
+              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6"
               animate={shouldReduceMotion ? {} : { 
-                scale: [1, 1.05, 1],
-                rotate: [0, 5, -5, 0]
+                scale: [1, 1.05, 1]
               }}
               transition={{ duration: 4, repeat: Infinity }}
             >
-              <GraduationCap className="w-8 h-8 text-white" />
+              <img 
+                src="https://res.cloudinary.com/dfnpgl0bb/image/upload/v1771046687/ChatGPT_Image_Feb_14_2026_10_54_24_AM_k20wkr.png" 
+                alt="Student Hub Logo" 
+                className="w-full h-full object-contain"
+              />
             </motion.div>
 
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Ready to transform your{' '}
-              <span className="text-primary">
+              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                 academic experience?
               </span>
             </h2>
@@ -705,10 +783,14 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-info rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <img 
+                src="https://res.cloudinary.com/dfnpgl0bb/image/upload/v1771046687/ChatGPT_Image_Feb_14_2026_10_54_24_AM_k20wkr.png" 
+                alt="Student Hub Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="text-lg font-semibold">Student Hub</span>
+            <span className="text-lg font-semibold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Student Hub</span>
           </div>
 
           <div className="flex items-center gap-8 text-sm text-muted-foreground">

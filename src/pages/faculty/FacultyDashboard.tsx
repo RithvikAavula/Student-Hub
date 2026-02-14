@@ -19,6 +19,7 @@ import {
   SidebarInset,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import { NotebookText, Users, User, LayoutDashboard, MessageCircle, BarChart3 } from 'lucide-react';
 import FacultyAnalyticsDashboard from './FacultyAnalyticsDashboard';
@@ -92,6 +93,29 @@ export default function FacultyDashboard() {
   return (
     <SidebarProvider defaultOpen={false}>
       <Sidebar variant="floating" collapsible="offcanvas" className="border-r-0">
+        <SidebarHeader className="p-4 border-b border-border/50">
+          <motion.div 
+            className="flex items-center gap-3"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-lg shadow-primary/20 ring-2 ring-primary/20">
+              <img 
+                src="https://res.cloudinary.com/dfnpgl0bb/image/upload/v1771046687/ChatGPT_Image_Feb_14_2026_10_54_24_AM_k20wkr.png" 
+                alt="Student Hub Logo" 
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                Student Hub
+              </span>
+              <span className="text-xs text-muted-foreground">Faculty Portal</span>
+            </div>
+          </motion.div>
+        </SidebarHeader>
         <SidebarContent className="bg-gradient-to-b from-background to-muted/30">
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground/70">Navigation</SidebarGroupLabel>
@@ -109,19 +133,19 @@ export default function FacultyDashboard() {
                         onClick={() => handleTabChange(item.id)}
                         isActive={activeTab === item.id}
                         size="lg"
-                        className="transition-all duration-300 hover:translate-x-1 group relative"
+                        className={`transition-all duration-300 hover:translate-x-1 group relative ${activeTab === item.id ? 'bg-gradient-to-r from-primary/10 to-accent/10 shadow-sm' : 'hover:bg-primary/5'}`}
                       >
                         <motion.div
                           animate={activeTab === item.id ? { scale: [1, 1.2, 1] } : {}}
                           transition={{ duration: 0.3 }}
                         >
-                          <item.icon className={`transition-colors ${activeTab === item.id ? 'text-primary' : 'group-hover:text-primary/70'}`} />
+                          <item.icon className={`transition-colors ${activeTab === item.id ? 'text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'group-hover:text-primary/70'}`} />
                         </motion.div>
-                        <span>{item.label}</span>
+                        <span className={activeTab === item.id ? 'font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent' : ''}>{item.label}</span>
                         {activeTab === item.id && (
                           <motion.div
                             layoutId="facultyActiveIndicator"
-                            className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                            className="absolute left-0 w-1 h-6 bg-gradient-to-b from-primary via-accent to-primary rounded-r-full shadow-[0_0_10px_hsl(var(--primary)/0.5)]"
                             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                           />
                         )}
@@ -136,19 +160,19 @@ export default function FacultyDashboard() {
         <SidebarSeparator />
       </Sidebar>
       <SidebarInset>
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
           {/* Animated background effects */}
           <MorphingBlob 
             className="absolute top-0 right-0 w-[500px] h-[500px] opacity-30 pointer-events-none" 
-            colors={['hsl(var(--success)/0.1)', 'hsl(var(--primary)/0.1)', 'hsl(var(--info)/0.1)']}
+            colors={['hsl(var(--primary)/0.1)', 'hsl(var(--accent)/0.1)', 'hsl(var(--primary)/0.1)']}
           />
           <MorphingBlob 
             className="absolute bottom-0 left-0 w-[400px] h-[400px] opacity-20 pointer-events-none" 
-            colors={['hsl(var(--primary)/0.1)', 'hsl(var(--warning)/0.1)', 'hsl(var(--success)/0.1)']}
+            colors={['hsl(var(--accent)/0.1)', 'hsl(var(--primary)/0.1)', 'hsl(var(--accent)/0.1)']}
           />
           
           <Header />
-          <main className="container px-6 md:px-8 py-6 relative z-10">
+          <main className="w-full px-6 md:px-8 py-6 relative z-10 transition-all duration-200">
             {activeTab !== 'messages' && (
               <motion.div
                 initial={{ opacity: 0, y: -20 }}

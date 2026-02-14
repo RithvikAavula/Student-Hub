@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { GraduationCap, LogOut, User, ImageIcon, X } from 'lucide-react';
+import { LogOut, User, ImageIcon, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
@@ -47,11 +47,15 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-slide-in-top">
       <div className="container px-6 md:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-105">
-            <GraduationCap className="w-6 h-6 text-primary-foreground" />
+          <div className="w-12 h-12 flex items-center justify-center hover:scale-105 transition-all duration-300">
+            <img 
+              src="https://res.cloudinary.com/dfnpgl0bb/image/upload/v1771046687/ChatGPT_Image_Feb_14_2026_10_54_24_AM_k20wkr.png" 
+              alt="Student Hub Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Student Records Platform</h1>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Student Hub</h1>
             {profile && (
               <span
                 className={`text-xs px-2 py-0.5 rounded-full font-medium transition-all duration-300 hover:scale-105 ${getRoleBadgeColor(

@@ -115,15 +115,16 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[525px] max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Activity Record</DialogTitle>
           <DialogDescription>
             Upload a new achievement or activity for faculty review
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin">
+            <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
               <Input
@@ -205,8 +206,9 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
                 <p className="text-xs text-muted-foreground">Selected: {certificate.name}</p>
               )}
             </div>
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 pt-4 border-t">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Cancel
             </Button>
