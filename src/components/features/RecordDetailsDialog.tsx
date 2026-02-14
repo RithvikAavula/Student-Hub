@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import StatusBadge from './StatusBadge';
 import CategoryBadge from './CategoryBadge';
-import { Calendar, FileText, Award, ExternalLink, AlertCircle } from 'lucide-react';
+import { Calendar, FileText, Award, ExternalLink, AlertCircle, GraduationCap } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { getAcademicYearLabel } from '@/lib/academicYear';
 
 interface RecordDetailsDialogProps {
   record: StudentRecord;
@@ -37,8 +38,14 @@ export default function RecordDetailsDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <CategoryBadge category={record.category} />
+            {record.academic_year && (
+              <Badge variant="outline" className="gap-1 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                <GraduationCap className="w-3 h-3" />
+                {getAcademicYearLabel(record.academic_year)}
+              </Badge>
+            )}
             {record.points > 0 && (
               <Badge variant="secondary" className="gap-1">
                 <Award className="w-3 h-3" />

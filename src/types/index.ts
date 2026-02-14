@@ -13,6 +13,10 @@ export interface AuthUser {
   avatar?: string;
 }
 
+export type AcademicYear = 1 | 2 | 3 | 4;
+
+export type GraduationStatus = 'Active' | 'Graduated';
+
 export interface Profile {
   id: string;
   email: string;
@@ -23,6 +27,10 @@ export interface Profile {
   year_of_study?: number;
   section?: string;
   avatar?: string;
+  join_date?: string;
+  batch_year?: number;
+  current_academic_year?: AcademicYear;
+  graduation_status?: GraduationStatus;
   created_at: string;
   updated_at: string;
 }
@@ -40,8 +48,28 @@ export interface StudentRecord {
   reviewed_by?: string;
   reviewed_at?: string;
   rejection_reason?: string;
+  academic_year?: AcademicYear;
   created_at: string;
   updated_at: string;
+}
+
+// Extended record type with student details
+export interface StudentRecordWithDetails extends StudentRecord {
+  student_name?: string;
+  student_email?: string;
+  student_department?: string;
+  student_section?: string;
+  student_batch_year?: number;
+  student_current_academic_year?: AcademicYear;
+}
+
+// Year-wise statistics for a student
+export interface YearWiseStats {
+  academic_year: AcademicYear;
+  total_submissions: number;
+  pending_count: number;
+  approved_count: number;
+  rejected_count: number;
 }
 
 export interface Attendance {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,7 +25,7 @@ import {
   SidebarHeader,
 } from '@/components/ui/sidebar';
 import { Users, UserCog, ClipboardList, NotebookText, User, BarChart3 } from 'lucide-react';
-import AnalyticsDashboard from '@/components/features/AnalyticsDashboard';
+import AdminAnalyticsDashboard from '@/components/features/AdminAnalyticsDashboard';
 import { ThemeToggle } from '@/components/theme/ThemeProvider';
 import { MorphingBlob } from '@/components/motion';
 
@@ -51,6 +51,13 @@ export default function AdminDashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'faculty');
 
+  // Update active tab when navigating back with state
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state?.activeTab]);
+
   const menuItems = [
     { id: 'faculty', label: 'Faculty', icon: UserCog },
     { id: 'students', label: 'Students', icon: Users },
@@ -66,7 +73,7 @@ export default function AdminDashboard() {
       case 'students': return <StudentManagementTab />;
       case 'assignments': return <AssignmentManagementTab />;
       case 'records': return <RecordsTab />;
-      case 'analytics': return <AnalyticsDashboard />;
+      case 'analytics': return <AdminAnalyticsDashboard />;
       case 'profile': return <AdminProfile />;
       default: return <FacultyManagementTab />;
     }

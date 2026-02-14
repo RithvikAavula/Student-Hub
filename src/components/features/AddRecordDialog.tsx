@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { RecordCategory } from '@/types';
+import { RecordCategory, AcademicYear } from '@/types';
+import { calculateAcademicYear, getAcademicYearLabel } from '@/lib/academicYear';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2, Upload, GraduationCap } from 'lucide-react';
 
 interface AddRecordDialogProps {
   open: boolean;
@@ -29,6 +30,29 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [currentAcademicYear, setCurrentAcademicYear] = useState<AcademicYear>(1);
+
+  // Fetch student's join date and year_of_study to calculate current academic year
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('join_date, year_of_study')
+        .eq('id', user.id)
+        .single();
+      
+      if (!error && data) {
+        const startingYear = (data.year_of_study || 1) as 1 | 2 | 3 | 4;
+        setCurrentAcademicYear(calculateAcademicYear(data.join_date, startingYear));
+      }
+    };
+    
+    if (open) {
+      fetchProfile();
+    }
+  }, [user, open]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -68,7 +92,7 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
         setUploading(false);
       }
 
-      // Insert record
+      // Insert record with current academic year
       const { error } = await supabase.from('student_records').insert({
         student_id: user.id,
         title: formData.title,
@@ -78,6 +102,7 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
         points: formData.points,
         certificate_url: certificateUrl,
         status: 'pending',
+        academic_year: currentAcademicYear,
       });
 
       if (error) throw error;
@@ -124,6 +149,19 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin">
+            {/* Academic Year Indicator */}
+            <div className="mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Submitting as {getAcademicYearLabel(currentAcademicYear)} Student</p>
+                <p className="text-xs text-muted-foreground">
+                  This record will be permanently stored under your {getAcademicYearLabel(currentAcademicYear)} submissions
+                </p>
+              </div>
+            </div>
+            
             <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>

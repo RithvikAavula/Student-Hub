@@ -270,12 +270,12 @@ export default function AssignmentManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total Assignments</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm text-muted-foreground">Total Assignments</p>
+                <p className="text-2xl font-bold text-foreground">
                   {students.reduce((sum, s) => sum + (s.faculty_assignments?.length || 0), 0)}
                 </p>
               </div>
-              <UserPlus className="w-8 h-8 text-green-600" />
+              <UserPlus className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
           </CardContent>
         </Card>
@@ -283,10 +283,10 @@ export default function AssignmentManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total Students</p>
-                <p className="text-2xl font-bold text-slate-900">{students.length}</p>
+                <p className="text-sm text-muted-foreground">Total Students</p>
+                <p className="text-2xl font-bold text-foreground">{students.length}</p>
               </div>
-              <GraduationCap className="w-8 h-8 text-blue-600" />
+              <GraduationCap className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
           </CardContent>
         </Card>
@@ -294,10 +294,10 @@ export default function AssignmentManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total Faculty</p>
-                <p className="text-2xl font-bold text-slate-900">{faculty.length}</p>
+                <p className="text-sm text-muted-foreground">Total Faculty</p>
+                <p className="text-2xl font-bold text-foreground">{faculty.length}</p>
               </div>
-              <Users className="w-8 h-8 text-purple-600" />
+              <Users className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
           </CardContent>
         </Card>
@@ -328,27 +328,27 @@ export default function AssignmentManagementTab() {
                       {facultyMember.full_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 truncate">{facultyMember.full_name}</h3>
-                      <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
+                      <h3 className="font-semibold text-foreground truncate">{facultyMember.full_name}</h3>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                         <Mail className="w-3 h-3" />
                         <span className="truncate">{facultyMember.email}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                         <Building2 className="w-3 h-3" />
                         <span>{facultyMember.department || 'No Department'}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="mt-4 pt-4 border-t border-border">
                     <div className="flex items-center justify-between">
                       <div className="text-center flex-1">
-                        <p className="text-2xl font-bold text-green-600">{facultyMember.assignedStudentsCount}</p>
-                        <p className="text-xs text-slate-500">Assigned</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{facultyMember.assignedStudentsCount}</p>
+                        <p className="text-xs text-muted-foreground">Assigned</p>
                       </div>
-                      <div className="h-8 w-px bg-slate-200" />
+                      <div className="h-8 w-px bg-border" />
                       <div className="text-center flex-1">
-                        <p className="text-2xl font-bold text-blue-600">{facultyMember.departmentStudentsCount}</p>
-                        <p className="text-xs text-slate-500">In Department</p>
+                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{facultyMember.departmentStudentsCount}</p>
+                        <p className="text-xs text-muted-foreground">In Department</p>
                       </div>
                     </div>
                   </div>
@@ -369,8 +369,8 @@ export default function AssignmentManagementTab() {
 
           {filteredFaculty.length === 0 && (
             <div className="py-12 text-center">
-              <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500">No faculty found in this department.</p>
+              <Users className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+              <p className="text-muted-foreground">No faculty found in this department.</p>
             </div>
           )}
         </CardContent>
@@ -399,15 +399,15 @@ export default function AssignmentManagementTab() {
                   {selectedFaculty.full_name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900">{selectedFaculty.full_name}</h3>
-                  <p className="text-sm text-slate-500">{selectedFaculty.email}</p>
+                  <h3 className="font-semibold text-foreground">{selectedFaculty.full_name}</h3>
+                  <p className="text-sm text-muted-foreground">{selectedFaculty.email}</p>
                   <Badge variant="outline" className="mt-1">
                     {selectedFaculty.department || 'No Department'}
                   </Badge>
                 </div>
                 <div className="ml-auto text-right">
-                  <p className="text-sm text-slate-500">Currently Assigned</p>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-sm text-muted-foreground">Currently Assigned</p>
+                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {selectedFaculty.assignedStudentsCount}
                   </p>
                 </div>
@@ -416,9 +416,9 @@ export default function AssignmentManagementTab() {
               {/* Student Selection Actions */}
               <div className="flex flex-col gap-3 py-2 flex-shrink-0">
                 {/* Filters Row */}
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <Filter className="w-4 h-4 text-slate-500" />
-                  <span className="text-sm font-medium text-slate-700">Filter:</span>
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Filter:</span>
                   <Select value={filterYear} onValueChange={setFilterYear}>
                     <SelectTrigger className="w-32">
                       <SelectValue placeholder="Year" />
@@ -453,7 +453,7 @@ export default function AssignmentManagementTab() {
                         setFilterYear('all');
                         setFilterSection('all');
                       }}
-                      className="text-slate-500 hover:text-slate-700"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       Clear Filters
                     </Button>
@@ -490,7 +490,7 @@ export default function AssignmentManagementTab() {
                   {/* Currently Assigned Students */}
                   {getAssignedStudents(selectedFaculty.id).length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-medium text-sm text-slate-700 sticky top-0 bg-white py-2">
+                      <h4 className="font-medium text-sm text-muted-foreground sticky top-0 bg-background py-2">
                         Currently Assigned Students
                       </h4>
                       {getAssignedStudents(selectedFaculty.id).map((student) => (
@@ -502,8 +502,8 @@ export default function AssignmentManagementTab() {
                             {student.full_name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-slate-900">{student.full_name}</h4>
-                            <p className="text-sm text-slate-500">
+                            <h4 className="font-medium text-foreground">{student.full_name}</h4>
+                            <p className="text-sm text-muted-foreground">
                               {student.student_id || 'No ID'} • Year {student.year_of_study}
                               {student.section && ` • Section ${student.section}`}
                             </p>
@@ -514,7 +514,7 @@ export default function AssignmentManagementTab() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                             onClick={() => removeAssignment(student.id, selectedFaculty.id)}
                           >
                             <UserMinus className="w-4 h-4" />
@@ -526,10 +526,10 @@ export default function AssignmentManagementTab() {
 
                   {/* Department Students (Unassigned to this faculty) */}
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-slate-700 sticky top-0 bg-white py-2">
+                    <h4 className="font-medium text-sm text-muted-foreground sticky top-0 bg-background py-2">
                       Department Students
                       {(filterYear !== 'all' || filterSection !== 'all') && (
-                        <span className="ml-2 text-xs font-normal text-slate-500">
+                        <span className="ml-2 text-xs font-normal text-muted-foreground/70">
                           (Filtered: {filterYear !== 'all' ? `Year ${filterYear}` : ''}{filterYear !== 'all' && filterSection !== 'all' ? ', ' : ''}{filterSection !== 'all' ? `Section ${filterSection}` : ''})
                         </span>
                       )}
@@ -546,10 +546,10 @@ export default function AssignmentManagementTab() {
                             key={student.id}
                             className={`flex items-center gap-4 p-3 rounded-lg border transition-colors ${
                               isAssignedToOther
-                                ? 'bg-slate-50 border-slate-200 opacity-60'
+                                ? 'bg-muted border-border opacity-60'
                                 : isSelected
-                                ? 'bg-blue-50 border-blue-300'
-                                : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/50'
+                                ? 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700'
+                                : 'bg-card border-border hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/50'
                             }`}
                           >
                             <Checkbox
@@ -562,8 +562,8 @@ export default function AssignmentManagementTab() {
                               {student.full_name.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-slate-900">{student.full_name}</h4>
-                              <p className="text-sm text-slate-500">
+                              <h4 className="font-medium text-foreground">{student.full_name}</h4>
+                              <p className="text-sm text-muted-foreground">
                                 {student.student_id || 'No ID'} • Year {student.year_of_study}
                                 {student.section && ` • Section ${student.section}`}
                               </p>
@@ -583,8 +583,8 @@ export default function AssignmentManagementTab() {
 
                     {getFilteredDepartmentStudents(selectedFaculty.department).filter((s) => !getAssignedStudents(selectedFaculty.id).some((as) => as.id === s.id)).length === 0 && (
                       <div className="py-8 text-center">
-                        <GraduationCap className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                        <p className="text-slate-500">
+                        <GraduationCap className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
+                        <p className="text-muted-foreground">
                           {filterYear !== 'all' || filterSection !== 'all'
                             ? 'No students match the selected filters.'
                             : 'No students in this department.'}
@@ -596,7 +596,7 @@ export default function AssignmentManagementTab() {
               </ScrollArea>
 
               {/* Fixed Footer with Assign Button */}
-              <div className="flex-shrink-0 pt-4 border-t border-slate-200 bg-white">
+              <div className="flex-shrink-0 pt-4 border-t border-border bg-background">
                 <div className="flex items-center justify-between gap-4">
                   <Button
                     variant="outline"

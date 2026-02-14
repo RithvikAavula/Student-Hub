@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { processAvatarImage } from '@/lib/utils';
 import { useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
+import { calculateAcademicYear, getAcademicYearLabel, getBatchLabel, getGraduationStatus } from '@/lib/academicYear';
+import { GraduationCap } from 'lucide-react';
 
 export default function StudentProfile() {
   const { user, profile } = useAuth();
@@ -152,10 +154,38 @@ export default function StudentProfile() {
                   <p className="font-medium">{profile.department}</p>
                 </div>
               )}
-              {typeof profile.year_of_study === 'number' && (
+              <div>
+                <p className="text-sm text-muted-foreground">Current Academic Year</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <GraduationCap className="h-4 w-4 text-primary" />
+                  <span className="font-medium">{getAcademicYearLabel(calculateAcademicYear(profile.join_date))}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    getGraduationStatus(profile.join_date) === 'Graduated' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                  }`}>
+                    {getGraduationStatus(profile.join_date)}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Batch</p>
+                <p className="font-medium">{profile.join_date ? getBatchLabel(profile.join_date) : 'Not set'}</p>
+              </div>
+              {profile.join_date && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Year of Study</p>
-                  <p className="font-medium">{profile.year_of_study}</p>
+                  <p className="text-sm text-muted-foreground">Enrollment Date</p>
+                  <p className="font-medium">{new Date(profile.join_date).toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                  })}</p>
+                </div>
+              )}
+              {profile.section && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Section</p>
+                  <p className="font-medium">{profile.section}</p>
                 </div>
               )}
             </CardContent>

@@ -193,7 +193,7 @@ export default function FacultyDetailsPage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <Header />
       <div className="flex items-center justify-center py-12">
         <div className="w-8 h-8 animate-spin text-primary"></div>
@@ -202,10 +202,10 @@ export default function FacultyDetailsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-900" onClick={() => navigate('/', { state: { activeTab: 'assignments' } })}>
+        <button className="mb-4 flex items-center gap-2 text-muted-foreground hover:text-foreground" onClick={() => navigate('/dashboard', { state: { activeTab: 'assignments' } })}>
           <ArrowLeft className="w-4 h-4" /> Back to Assignments
         </button>
         <Card className="mb-6">
@@ -215,9 +215,9 @@ export default function FacultyDetailsPage() {
                 {faculty?.full_name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-2xl font-bold">{faculty?.full_name}</h1>
-                <p className="text-slate-600">{faculty?.email}</p>
-                <p className="text-slate-500">{faculty?.department}</p>
+                <h1 className="text-2xl font-bold text-foreground">{faculty?.full_name}</h1>
+                <p className="text-muted-foreground">{faculty?.email}</p>
+                <p className="text-muted-foreground">{faculty?.department}</p>
               </div>
             </CardTitle>
           </CardHeader>
@@ -238,7 +238,7 @@ export default function FacultyDetailsPage() {
               {/* Search and Filters for Assigned */}
               <div className="space-y-4 mb-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     placeholder="Search assigned students..."
                     value={assignedSearch}
@@ -273,19 +273,19 @@ export default function FacultyDetailsPage() {
               </div>
               <ScrollArea className="h-96">
                 {filteredAssignedStudents.length === 0 ? (
-                  <p className="text-sm text-slate-500 text-center py-8">
+                  <p className="text-sm text-muted-foreground text-center py-8">
                     {assignedStudents.length === 0 ? 'No students assigned yet.' : 'No students match the filters.'}
                   </p>
                 ) : (
                   filteredAssignedStudents.map((student) => (
-                    <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg mb-2">
+                    <div key={student.id} className="flex items-center justify-between p-3 border border-border rounded-lg mb-2">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                           {student.full_name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium">{student.full_name}</p>
-                          <p className="text-sm text-slate-500">{student.email}</p>
+                          <p className="font-medium text-foreground">{student.full_name}</p>
+                          <p className="text-sm text-muted-foreground">{student.email}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -320,7 +320,7 @@ export default function FacultyDetailsPage() {
               {/* Search and Filters for Available */}
               <div className="space-y-4 mb-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     placeholder="Search available students..."
                     value={availableSearch}
@@ -355,13 +355,13 @@ export default function FacultyDetailsPage() {
               </div>
               <ScrollArea className="h-96">
                 {filteredAvailableStudents.length === 0 ? (
-                  <p className="text-sm text-slate-500 text-center py-8">
+                  <p className="text-sm text-muted-foreground text-center py-8">
                     {availableStudents.length === 0 ? 'No available students.' : 'No students match the filters.'}
                   </p>
                 ) : (
                   <>
                     {filteredAvailableStudents.map((student) => (
-                      <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg mb-2">
+                      <div key={student.id} className="flex items-center justify-between p-3 border border-border rounded-lg mb-2">
                         <div className="flex items-center gap-3">
                           <Checkbox
                             checked={selectedStudents.includes(student.id)}
@@ -371,8 +371,8 @@ export default function FacultyDetailsPage() {
                             {student.full_name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium">{student.full_name}</p>
-                            <p className="text-sm text-slate-500">{student.email}</p>
+                            <p className="font-medium text-foreground">{student.full_name}</p>
+                            <p className="text-sm text-muted-foreground">{student.email}</p>
                           </div>
                         </div>
                         <Badge variant="secondary">Available</Badge>

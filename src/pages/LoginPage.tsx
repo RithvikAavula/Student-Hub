@@ -135,6 +135,11 @@ export default function LoginPage() {
               </Button>
             </form>
             <div className="mt-4 text-center animate-fade-in stagger-4">
+              <Button variant="link" onClick={() => navigate('/forgot-password')} disabled={loading} className="hover:text-purple-600 transition-colors">
+                Forgot your password?
+              </Button>
+            </div>
+            <div className="text-center">
               <Button variant="link" onClick={() => navigate('/register')} disabled={loading} className="hover:text-purple-600 transition-colors">
                 Don't have an account? Register
               </Button>

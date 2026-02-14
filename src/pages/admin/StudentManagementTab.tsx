@@ -85,7 +85,7 @@ export default function StudentManagementTab() {
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search students by name, email, student ID, or department..."
                 value={searchTerm}
@@ -124,7 +124,7 @@ export default function StudentManagementTab() {
                 <button
                   type="button"
                   onClick={() => { setFilterYear('all'); setFilterSection('all'); }}
-                  className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+                  className="text-xs px-2 py-1 rounded bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border"
                 >
                   Clear Filters
                 </button>
@@ -140,10 +140,10 @@ export default function StudentManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total Students</p>
-                <p className="text-2xl font-bold text-slate-900">{students.length}</p>
+                <p className="text-sm text-muted-foreground">Total Students</p>
+                <p className="text-2xl font-bold text-foreground">{students.length}</p>
               </div>
-              <GraduationCap className="w-8 h-8 text-blue-600" />
+              <GraduationCap className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
           </CardContent>
         </Card>
@@ -151,10 +151,10 @@ export default function StudentManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Departments</p>
-                <p className="text-2xl font-bold text-slate-900">{departments.length}</p>
+                <p className="text-sm text-muted-foreground">Departments</p>
+                <p className="text-2xl font-bold text-foreground">{departments.length}</p>
               </div>
-              <Users className="w-8 h-8 text-purple-600" />
+              <Users className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
           </CardContent>
         </Card>
@@ -162,10 +162,10 @@ export default function StudentManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Active Students</p>
-                <p className="text-2xl font-bold text-slate-900">{filteredStudents.length}</p>
+                <p className="text-sm text-muted-foreground">Active Students</p>
+                <p className="text-2xl font-bold text-foreground">{filteredStudents.length}</p>
               </div>
-              <Users className="w-8 h-8 text-green-600" />
+              <Users className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
           </CardContent>
         </Card>
@@ -178,7 +178,7 @@ export default function StudentManagementTab() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>{dept}</span>
-                <span className="text-sm font-normal text-slate-500">
+                <span className="text-sm font-normal text-muted-foreground">
                   {studentsByDepartment[dept].length} students
                 </span>
               </CardTitle>
@@ -186,13 +186,13 @@ export default function StudentManagementTab() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {studentsByDepartment[dept].map((s) => (
-                  <Card key={s.id} className="border border-slate-200">
+                  <Card key={s.id} className="border border-border">
                     <CardContent className="pt-6">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-slate-900">{s.full_name}</h3>
-                            <p className="text-sm text-slate-500 mt-1">{s.student_id || 'No ID'}</p>
+                            <h3 className="font-semibold text-foreground">{s.full_name}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">{s.student_id || 'No ID'}</p>
                           </div>
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
                             {s.full_name.charAt(0).toUpperCase()}
@@ -200,17 +200,17 @@ export default function StudentManagementTab() {
                         </div>
                         
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2 text-slate-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Mail className="w-4 h-4" />
                             <span className="truncate">{s.email}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <GraduationCap className="w-4 h-4 text-slate-600" />
+                            <GraduationCap className="w-4 h-4 text-muted-foreground" />
                             <Badge variant="secondary">
                               Year {s.year_of_study || 'N/A'}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-2 text-slate-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="w-4 h-4" />
                             <span>Joined {new Date(s.created_at).toLocaleDateString()}</span>
                           </div>
@@ -228,8 +228,8 @@ export default function StudentManagementTab() {
       {filteredStudents.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500">No students found matching your search.</p>
+            <GraduationCap className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+            <p className="text-muted-foreground">No students found matching your search.</p>
           </CardContent>
         </Card>
       )}

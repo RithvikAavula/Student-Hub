@@ -68,7 +68,7 @@ export default function FacultyManagementTab() {
       <Card>
         <CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search faculty by name, email, or department..."
               value={searchTerm}
@@ -85,10 +85,10 @@ export default function FacultyManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total Faculty</p>
-                <p className="text-2xl font-bold text-slate-900">{faculty.length}</p>
+                <p className="text-sm text-muted-foreground">Total Faculty</p>
+                <p className="text-2xl font-bold text-foreground">{faculty.length}</p>
               </div>
-              <Users className="w-8 h-8 text-purple-600" />
+              <Users className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
           </CardContent>
         </Card>
@@ -96,10 +96,10 @@ export default function FacultyManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Departments</p>
-                <p className="text-2xl font-bold text-slate-900">{departments.length}</p>
+                <p className="text-sm text-muted-foreground">Departments</p>
+                <p className="text-2xl font-bold text-foreground">{departments.length}</p>
               </div>
-              <Users className="w-8 h-8 text-blue-600" />
+              <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
           </CardContent>
         </Card>
@@ -107,10 +107,10 @@ export default function FacultyManagementTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Active Faculty</p>
-                <p className="text-2xl font-bold text-slate-900">{filteredFaculty.length}</p>
+                <p className="text-sm text-muted-foreground">Active Faculty</p>
+                <p className="text-2xl font-bold text-foreground">{filteredFaculty.length}</p>
               </div>
-              <Users className="w-8 h-8 text-green-600" />
+              <Users className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
           </CardContent>
         </Card>
@@ -123,7 +123,7 @@ export default function FacultyManagementTab() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>{dept}</span>
-                <span className="text-sm font-normal text-slate-500">
+                <span className="text-sm font-normal text-muted-foreground">
                   {facultyByDepartment[dept].length} faculty members
                 </span>
               </CardTitle>
@@ -131,13 +131,13 @@ export default function FacultyManagementTab() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {facultyByDepartment[dept].map((f) => (
-                  <Card key={f.id} className="border border-slate-200">
+                  <Card key={f.id} className="border border-border">
                     <CardContent className="pt-6">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-slate-900">{f.full_name}</h3>
-                            <p className="text-sm text-slate-500 mt-1">Faculty</p>
+                            <h3 className="font-semibold text-foreground">{f.full_name}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">Faculty</p>
                           </div>
                           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                             {f.full_name.charAt(0).toUpperCase()}
@@ -145,11 +145,11 @@ export default function FacultyManagementTab() {
                         </div>
                         
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2 text-slate-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Mail className="w-4 h-4" />
                             <span className="truncate">{f.email}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-slate-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="w-4 h-4" />
                             <span>Joined {new Date(f.created_at).toLocaleDateString()}</span>
                           </div>
@@ -167,8 +167,8 @@ export default function FacultyManagementTab() {
       {filteredFaculty.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500">No faculty found matching your search.</p>
+            <Users className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+            <p className="text-muted-foreground">No faculty found matching your search.</p>
           </CardContent>
         </Card>
       )}

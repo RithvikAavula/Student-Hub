@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Profile, StudentRecord, RecordCategory } from '@/types';
+import { Profile, StudentRecord, RecordCategory, AcademicYear } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, FileText, Award, User, Filter, Grid3X3, List } from 'lucide-react';
+import { ArrowLeft, FileText, Award, User, Filter, Grid3X3, List, GraduationCap, Calendar } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StatusBadge from '@/components/features/StatusBadge';
 import CategoryBadge from '@/components/features/CategoryBadge';
 import ReviewRecordDialog from '@/components/features/ReviewRecordDialog';
+import { calculateAcademicYear, getAcademicYearLabel, calculateYearWiseStats, getBatchLabel, getAcademicYearFilterOptions } from '@/lib/academicYear';
 
 interface RecordWithStudent extends StudentRecord {
   student?: Profile;
@@ -42,7 +43,10 @@ export default function StudentSubmissionsTab({
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [sectionFilter, setSectionFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<RecordCategory | 'all'>('all');
+  const [academicYearFilter, setAcademicYearFilter] = useState<AcademicYear | 'all'>('all');
+  const [batchYearFilter, setBatchYearFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [availableBatchYears, setAvailableBatchYears] = useState<number[]>([]);
   
   // Track if we've handled the initial navigation
   const hasHandledInitialNav = useRef(false);
@@ -169,6 +173,14 @@ export default function StudentSubmissionsTab({
         pendingCount: countMap[p.id]?.pending || 0,
       }));
 
+      // Extract unique batch years for filtering
+      const batchYears = [...new Set(
+        (profiles || [])
+          .map(p => p.batch_year)
+          .filter((y): y is number => y !== null && y !== undefined)
+      )].sort((a, b) => b - a);
+      setAvailableBatchYears(batchYears);
+
       // Sort by pending count descending, then by name
       studentsWithCounts.sort((a, b) => {
         if (b.pendingCount !== a.pendingCount) return b.pendingCount - a.pendingCount;
@@ -235,13 +247,23 @@ export default function StudentSubmissionsTab({
 
   // Show individual student's submissions
   if (selectedStudent) {
-    const filteredStudentRecords = studentRecords.filter((r) =>
-      categoryFilter === 'all' || r.category === categoryFilter
-    );
+    const filteredStudentRecords = studentRecords
+      .filter((r) => categoryFilter === 'all' || r.category === categoryFilter)
+      .filter((r) => academicYearFilter === 'all' || r.academic_year === academicYearFilter);
 
     const pendingRecords = filteredStudentRecords.filter((r) => r.status === 'pending');
     const approvedRecords = filteredStudentRecords.filter((r) => r.status === 'approved');
     const rejectedRecords = filteredStudentRecords.filter((r) => r.status === 'rejected');
+    
+    // Calculate year-wise stats for this student (only for available years)
+    const studentStartingYear = (selectedStudent.year_of_study || 1) as 1 | 2 | 3 | 4;
+    const yearWiseStats = calculateYearWiseStats(studentRecords).filter(
+      stat => stat.academic_year >= studentStartingYear
+    );
+    const studentCurrentYear = calculateAcademicYear(selectedStudent.join_date, studentStartingYear);
+    
+    // Get filter options based on student's starting year
+    const studentYearOptions = getAcademicYearFilterOptions(studentStartingYear);
 
     return (
       <div className="space-y-6">
@@ -252,18 +274,34 @@ export default function StudentSubmissionsTab({
           </Button>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="h-8 w-8 text-primary" />
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-semibold">{selectedStudent.full_name}</h3>
+              <p className="text-sm text-muted-foreground">
+                {selectedStudent.student_id} • {selectedStudent.department || 'No Department'}
+              </p>
+              <p className="text-sm text-muted-foreground">{selectedStudent.email}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-2xl font-semibold">{selectedStudent.full_name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {selectedStudent.student_id} • {selectedStudent.department || 'No Department'}
-              {selectedStudent.year_of_study && ` • Year ${selectedStudent.year_of_study}`}
-            </p>
-            <p className="text-sm text-muted-foreground">{selectedStudent.email}</p>
-          </div>
+          
+          {/* Academic Year Info */}
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="py-3 px-4">
+              <div className="flex items-center gap-3">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">Currently in {getAcademicYearLabel(studentCurrentYear)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedStudent.join_date ? getBatchLabel(selectedStudent.join_date) : 'Batch not set'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -308,9 +346,36 @@ export default function StudentSubmissionsTab({
           </Card>
         </div>
 
-        <div className="flex items-center justify-between">
+        {/* Year-wise Stats Tabs */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground mr-2">Filter by Academic Year:</span>
+          {studentYearOptions.map((option) => {
+            let count: number;
+            if (option.value === 'all') {
+              count = studentRecords.length;
+            } else {
+              const yearStats = yearWiseStats.find(s => s.academic_year === option.value);
+              count = yearStats?.total_submissions || 0;
+            }
+            
+            return (
+              <Button
+                key={option.value}
+                variant={academicYearFilter === option.value ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setAcademicYearFilter(option.value)}
+                className="gap-1"
+              >
+                {option.label}
+                <span className="ml-1 text-xs opacity-70">({count})</span>
+              </Button>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h4 className="text-lg font-semibold">Submissions ({filteredStudentRecords.length})</h4>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as RecordCategory | 'all')}>
               <SelectTrigger className="w-[160px]">
@@ -369,6 +434,11 @@ export default function StudentSubmissionsTab({
                     <div className="flex items-center gap-2 flex-wrap">
                       <CategoryBadge category={record.category} />
                       <StatusBadge status={record.status} />
+                      {record.academic_year && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {getAcademicYearLabel(record.academic_year)}
+                        </span>
+                      )}
                     </div>
                     <CardTitle className="text-lg">{record.title}</CardTitle>
                     {record.description && (
@@ -419,6 +489,11 @@ export default function StudentSubmissionsTab({
                       <div className="flex items-center gap-2 flex-wrap">
                         <CategoryBadge category={record.category} />
                         <StatusBadge status={record.status} />
+                        {record.academic_year && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            {getAcademicYearLabel(record.academic_year)}
+                          </span>
+                        )}
                       </div>
                       <CardTitle className="text-xl">{record.title}</CardTitle>
                       {record.description && (
@@ -483,7 +558,8 @@ export default function StudentSubmissionsTab({
   const filteredStudents = students.filter((s) => {
     const yearMatch = yearFilter === 'all' || s.year_of_study === parseInt(yearFilter);
     const sectionMatch = sectionFilter === 'all' || s.section === sectionFilter;
-    return yearMatch && sectionMatch;
+    const batchMatch = batchYearFilter === 'all' || (s.batch_year && s.batch_year.toString() === batchYearFilter);
+    return yearMatch && sectionMatch && batchMatch;
   });
 
   // Show all students grid
@@ -523,6 +599,21 @@ export default function StudentSubmissionsTab({
               ))}
             </SelectContent>
           </Select>
+          {availableBatchYears.length > 0 && (
+            <Select value={batchYearFilter} onValueChange={setBatchYearFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Filter by batch" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Batches</SelectItem>
+                {availableBatchYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year} Batch
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 
@@ -536,50 +627,59 @@ export default function StudentSubmissionsTab({
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredStudents.map((student) => (
-            <Card
-              key={student.id}
-              className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02]"
-              onClick={() => handleStudentClick(student)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-6 w-6 text-primary" />
+          {filteredStudents.map((student) => {
+            const studentStartingYear = (student.year_of_study || 1) as 1 | 2 | 3 | 4;
+            const studentAcademicYear = calculateAcademicYear(student.join_date, studentStartingYear);
+            
+            return (
+              <Card
+                key={student.id}
+                className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02]"
+                onClick={() => handleStudentClick(student)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg truncate">{student.full_name}</CardTitle>
+                      <p className="text-sm text-muted-foreground truncate">{student.student_id}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg truncate">{student.full_name}</CardTitle>
-                    <p className="text-sm text-muted-foreground truncate">{student.student_id}</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Department</span>
-                    <span className="font-medium">{student.department || 'N/A'}</span>
-                  </div>
-                  {student.year_of_study && (
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Year</span>
-                      <span className="font-medium">{student.year_of_study}</span>
+                      <span className="text-muted-foreground">Department</span>
+                      <span className="font-medium">{student.department || 'N/A'}</span>
                     </div>
-                  )}
-                  <div className="border-t pt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{student.recordCount} submissions</span>
-                    </div>
-                    {student.pendingCount > 0 && (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
-                        {student.pendingCount} pending
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Current Year</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        {getAcademicYearLabel(studentAcademicYear)}
                       </span>
-                    )}
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Registered As</span>
+                      <span className="font-medium">{getAcademicYearLabel(studentStartingYear)}</span>
+                    </div>
+                    <div className="border-t pt-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{student.recordCount} submissions</span>
+                      </div>
+                      {student.pendingCount > 0 && (
+                        <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                          {student.pendingCount} pending
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
