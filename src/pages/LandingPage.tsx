@@ -480,11 +480,12 @@ const FeaturesSection = () => {
 // ============================================
 
 const StatsSection = () => {
+  // Start with your actual data as default (will be updated from DB)
   const [stats, setStats] = useState([
-    { value: 0, suffix: '+', label: 'Active Students' },
-    { value: 0, suffix: '+', label: 'Faculty Members' },
+    { value: 7, suffix: '+', label: 'Active Students' },
+    { value: 5, suffix: '+', label: 'Faculty Members' },
     { value: 0, suffix: '+', label: 'Records Managed' },
-    { value: 0, suffix: '', label: 'Departments' },
+    { value: 1, suffix: '', label: 'Departments' },
   ]);
 
   useEffect(() => {
@@ -493,70 +494,36 @@ const StatsSection = () => {
         // Try calling the public stats function first
         const { data, error } = await supabase.rpc('get_public_stats');
 
+        console.log('RPC Response - data:', data, 'error:', error);
+
         if (error) {
-          console.error('RPC error (function may not exist yet):', error);
-          // Fallback: try direct queries with service role or show demo data
-          await fetchStatsDirectly();
-          return;
+          console.error('RPC error:', error);
+          return; // Keep default values
         }
 
         if (data) {
-          console.log('Stats fetched successfully:', data);
-          setStats([
-            { value: data.students || 0, suffix: '+', label: 'Active Students' },
-            { value: data.faculty || 0, suffix: '+', label: 'Faculty Members' },
-            { value: data.records || 0, suffix: '+', label: 'Records Managed' },
-            { value: data.departments || 0, suffix: '', label: 'Departments' },
-          ]);
+          // Handle both direct object and stringified JSON
+          const statsData = typeof data === 'string' ? JSON.parse(data) : data;
+          console.log('Parsed stats:', statsData);
+          
+          const students = Number(statsData.students) || 0;
+          const faculty = Number(statsData.faculty) || 0;
+          const records = Number(statsData.records) || 0;
+          const departments = Number(statsData.departments) || 0;
+
+          // Only update if we got valid data
+          if (students > 0 || faculty > 0) {
+            setStats([
+              { value: students, suffix: '+', label: 'Active Students' },
+              { value: faculty, suffix: '+', label: 'Faculty Members' },
+              { value: records, suffix: '+', label: 'Records Managed' },
+              { value: departments || 1, suffix: '', label: 'Departments' },
+            ]);
+          }
         }
       } catch (error) {
         console.error('Error fetching stats:', error);
-        await fetchStatsDirectly();
-      }
-    };
-
-    const fetchStatsDirectly = async () => {
-      try {
-        // Try fetching with select count - may work for some tables
-        const [studentsRes, facultyRes, recordsRes] = await Promise.all([
-          supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
-          supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'faculty'),
-          supabase.from('student_records').select('id', { count: 'exact', head: true }),
-        ]);
-
-        const students = studentsRes.count || 0;
-        const faculty = facultyRes.count || 0;
-        const records = recordsRes.count || 0;
-
-        console.log('Direct query results:', { students, faculty, records });
-
-        // If we got some data, use it
-        if (students > 0 || faculty > 0 || records > 0) {
-          setStats([
-            { value: students, suffix: '+', label: 'Active Students' },
-            { value: faculty, suffix: '+', label: 'Faculty Members' },
-            { value: records, suffix: '+', label: 'Records Managed' },
-            { value: 4, suffix: '', label: 'Departments' },
-          ]);
-        } else {
-          // Show demo placeholder data for better UX
-          console.log('No data accessible, showing demo values');
-          setStats([
-            { value: 250, suffix: '+', label: 'Active Students' },
-            { value: 35, suffix: '+', label: 'Faculty Members' },
-            { value: 1200, suffix: '+', label: 'Records Managed' },
-            { value: 4, suffix: '', label: 'Departments' },
-          ]);
-        }
-      } catch (err) {
-        console.error('Direct query failed:', err);
-        // Fallback demo data
-        setStats([
-          { value: 250, suffix: '+', label: 'Active Students' },
-          { value: 35, suffix: '+', label: 'Faculty Members' },
-          { value: 1200, suffix: '+', label: 'Records Managed' },
-          { value: 4, suffix: '', label: 'Departments' },
-        ]);
+        // Keep default values on error
       }
     };
 
