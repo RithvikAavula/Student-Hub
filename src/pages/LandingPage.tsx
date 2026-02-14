@@ -480,58 +480,13 @@ const FeaturesSection = () => {
 // ============================================
 
 const StatsSection = () => {
-  // Your actual counts - these will be displayed immediately
-  const [stats, setStats] = useState([
+  // Static stats - update these values manually as needed
+  const stats = [
     { value: 7, suffix: '+', label: 'Active Students' },
     { value: 5, suffix: '+', label: 'Faculty Members' },
     { value: 12, suffix: '+', label: 'Records Managed' },
     { value: 1, suffix: '', label: 'Departments' },
-  ]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    // Only fetch once
-    if (loaded) return;
-    
-    const fetchStats = async () => {
-      try {
-        const { data, error } = await supabase.rpc('get_public_stats');
-
-        if (!error && data) {
-          // Parse the response
-          let statsData = data;
-          if (typeof data === 'string') {
-            try {
-              statsData = JSON.parse(data);
-            } catch {
-              console.log('Could not parse stats response');
-              return;
-            }
-          }
-          
-          // Extract values with defaults
-          const s = parseInt(statsData?.students) || 7;
-          const f = parseInt(statsData?.faculty) || 5;
-          const r = parseInt(statsData?.records) || 0;
-          const d = parseInt(statsData?.departments) || 1;
-
-          setStats([
-            { value: s, suffix: '+', label: 'Active Students' },
-            { value: f, suffix: '+', label: 'Faculty Members' },
-            { value: r, suffix: '+', label: 'Records Managed' },
-            { value: d, suffix: '', label: 'Departments' },
-          ]);
-        }
-      } catch (err) {
-        // Keep default values on any error
-        console.log('Stats fetch error, using defaults');
-      } finally {
-        setLoaded(true);
-      }
-    };
-
-    fetchStats();
-  }, [loaded]);
+  ];
 
   return (
     <section className="py-20 bg-gradient-to-r from-primary via-accent to-primary relative overflow-hidden">
