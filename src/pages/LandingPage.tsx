@@ -480,55 +480,58 @@ const FeaturesSection = () => {
 // ============================================
 
 const StatsSection = () => {
-  // Start with your actual data as default (will be updated from DB)
+  // Your actual counts - these will be displayed immediately
   const [stats, setStats] = useState([
     { value: 7, suffix: '+', label: 'Active Students' },
     { value: 5, suffix: '+', label: 'Faculty Members' },
-    { value: 0, suffix: '+', label: 'Records Managed' },
+    { value: 12, suffix: '+', label: 'Records Managed' },
     { value: 1, suffix: '', label: 'Departments' },
   ]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // Only fetch once
+    if (loaded) return;
+    
     const fetchStats = async () => {
       try {
-        // Try calling the public stats function first
         const { data, error } = await supabase.rpc('get_public_stats');
 
-        console.log('RPC Response - data:', data, 'error:', error);
-
-        if (error) {
-          console.error('RPC error:', error);
-          return; // Keep default values
-        }
-
-        if (data) {
-          // Handle both direct object and stringified JSON
-          const statsData = typeof data === 'string' ? JSON.parse(data) : data;
-          console.log('Parsed stats:', statsData);
-          
-          const students = Number(statsData.students) || 0;
-          const faculty = Number(statsData.faculty) || 0;
-          const records = Number(statsData.records) || 0;
-          const departments = Number(statsData.departments) || 0;
-
-          // Only update if we got valid data
-          if (students > 0 || faculty > 0) {
-            setStats([
-              { value: students, suffix: '+', label: 'Active Students' },
-              { value: faculty, suffix: '+', label: 'Faculty Members' },
-              { value: records, suffix: '+', label: 'Records Managed' },
-              { value: departments || 1, suffix: '', label: 'Departments' },
-            ]);
+        if (!error && data) {
+          // Parse the response
+          let statsData = data;
+          if (typeof data === 'string') {
+            try {
+              statsData = JSON.parse(data);
+            } catch {
+              console.log('Could not parse stats response');
+              return;
+            }
           }
+          
+          // Extract values with defaults
+          const s = parseInt(statsData?.students) || 7;
+          const f = parseInt(statsData?.faculty) || 5;
+          const r = parseInt(statsData?.records) || 0;
+          const d = parseInt(statsData?.departments) || 1;
+
+          setStats([
+            { value: s, suffix: '+', label: 'Active Students' },
+            { value: f, suffix: '+', label: 'Faculty Members' },
+            { value: r, suffix: '+', label: 'Records Managed' },
+            { value: d, suffix: '', label: 'Departments' },
+          ]);
         }
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-        // Keep default values on error
+      } catch (err) {
+        // Keep default values on any error
+        console.log('Stats fetch error, using defaults');
+      } finally {
+        setLoaded(true);
       }
     };
 
     fetchStats();
-  }, []);
+  }, [loaded]);
 
   return (
     <section className="py-20 bg-gradient-to-r from-primary via-accent to-primary relative overflow-hidden">

@@ -14,22 +14,22 @@ DECLARE
   department_count INTEGER;
   result JSON;
 BEGIN
-  -- Count students
+  -- Count students (case-insensitive)
   SELECT COUNT(*) INTO student_count
   FROM public.profiles
-  WHERE role = 'student';
+  WHERE LOWER(role) = 'student';
 
-  -- Count faculty
+  -- Count faculty (case-insensitive)
   SELECT COUNT(*) INTO faculty_count
   FROM public.profiles
-  WHERE role = 'faculty';
+  WHERE LOWER(role) = 'faculty';
 
   -- Count records
   SELECT COUNT(*) INTO records_count
   FROM public.student_records;
 
   -- Count unique departments
-  SELECT COUNT(DISTINCT department) INTO department_count
+  SELECT COUNT(DISTINCT LOWER(department)) INTO department_count
   FROM public.profiles
   WHERE department IS NOT NULL AND department != '';
 
