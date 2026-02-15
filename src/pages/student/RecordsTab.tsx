@@ -216,7 +216,7 @@ export default function RecordsTab() {
                   Currently in {getAcademicYearLabel(currentAcademicYear)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {profile?.join_date ? getBatchLabel(profile.join_date) : 'Batch not set'} • {profile?.department || 'Department not set'}
+                  {profile?.join_date ? getBatchLabel(profile.join_date, profile?.year_of_study) : 'Batch not set'} • {profile?.department || 'Department not set'}
                 </p>
               </div>
             </div>

@@ -2,15 +2,57 @@ import { AcademicYear, GraduationStatus, YearWiseStats, StudentRecord, Profile }
 import { supabase } from './supabase';
 
 /**
- * Calculate current academic year based on join date AND starting year (year_of_study from registration)
+ * Academic year in B.Tech colleges starts in August.
+ * Freshers (1st years) join between August-October each year.
  * 
- * Example: If student registered as 3rd year in September 2025, and now it's February 2026:
- * - They are still in 3rd year (academic session hasn't changed yet)
+ * Get the academic year start (e.g., 2025 for academic year 2025-26)
+ */
+export function getAcademicYearStart(date: Date = new Date()): number {
+  const month = date.getMonth() + 1; // 1-12
+  const year = date.getFullYear();
+  
+  // If month is August (8) or later, academic year started this year
+  // If month is before August, we're still in the previous academic year
+  return month >= 8 ? year : year - 1;
+}
+
+/**
+ * Calculate batch year (passing out year) based on join date and year_of_study at registration
  * 
- * If now it's September 2026:
- * - They are now in 4th year (1 year has passed since registration)
+ * Examples:
+ * - 1st year joins in Aug 2026 → Batch 2030 (2026 + 4 = 2030)
+ * - 2nd year joins in Aug 2026 → Batch 2029 (2026 + 3 = 2029)
+ * - 3rd year joins in Feb 2026 (academic year 2025-26) → Batch 2027 (2025 + 2 = 2027)
+ * - 4th year joins in Aug 2026 → Batch 2027 (2026 + 1 = 2027)
+ */
+export function calculateBatchYear(
+  joinDate: string | Date | null | undefined,
+  yearOfStudyAtJoin: number | null | undefined = 1
+): number {
+  const effectiveYear = yearOfStudyAtJoin || 1;
+  
+  if (!joinDate) {
+    // If no join date, assume current academic year
+    return getAcademicYearStart() + (5 - effectiveYear);
+  }
+  
+  const join = new Date(joinDate);
+  const joinAcademicYearStart = getAcademicYearStart(join);
+  
+  // Batch year = join academic year + remaining years to graduate
+  // If 1st year: 4 more years, if 2nd: 3 more years, etc.
+  return joinAcademicYearStart + (5 - effectiveYear);
+}
+
+/**
+ * Calculate current academic year (1st, 2nd, 3rd, 4th) based on batch year
  * 
- * Academic year progression happens every June/July
+ * Formula: current_year = starting_year + (current_academic_year_start - join_academic_year_start)
+ * 
+ * Example: Student joined as 3rd year in Feb 2026 (academic year 2025-26), checking in Sep 2026:
+ * - join_academic_year_start = 2025
+ * - current_academic_year_start = 2026
+ * - current_year = 3 + (2026 - 2025) = 4
  */
 export function calculateAcademicYear(
   joinDate: string | Date | null | undefined,
@@ -23,41 +65,22 @@ export function calculateAcademicYear(
   const join = new Date(joinDate);
   const now = new Date();
   
-  const joinMonth = join.getMonth() + 1; // 1-12
-  const currentMonth = now.getMonth() + 1; // 1-12
-  const joinYear = join.getFullYear();
-  const currentYear = now.getFullYear();
+  const joinAcademicYearStart = getAcademicYearStart(join);
+  const currentAcademicYearStart = getAcademicYearStart(now);
   
-  let yearsPassed: number;
+  // Calculate current year of study
+  const yearsPassed = currentAcademicYearStart - joinAcademicYearStart;
+  const currentYear = effectiveStartYear + yearsPassed;
   
-  if (joinMonth >= 6) {
-    // Joined in June-December (start of academic session)
-    yearsPassed = currentYear - joinYear;
-    if (currentMonth >= 6) {
-      // New academic session has started
-      yearsPassed += 1;
-    }
-  } else {
-    // Joined in January-May (mid-session, same academic year)
-    yearsPassed = currentYear - joinYear;
-    if (currentMonth >= 6) {
-      yearsPassed += 1;
-    }
-  }
+  // Clamp between starting year and 4
+  if (currentYear < effectiveStartYear) return effectiveStartYear as AcademicYear;
+  if (currentYear > 4) return 4;
   
-  // Calculate current year by adding years passed to starting year
-  // But for the first academic session (yearsPassed = 0), they are still in starting year
-  const calculatedYear = effectiveStartYear + Math.max(0, yearsPassed - 1);
-  
-  // Clamp to starting_year to 4 range
-  if (calculatedYear < effectiveStartYear) return effectiveStartYear as AcademicYear;
-  if (calculatedYear > 4) return 4;
-  
-  return calculatedYear as AcademicYear;
+  return currentYear as AcademicYear;
 }
 
 /**
- * Get graduation status based on join date and starting year
+ * Get graduation status based on batch year
  */
 export function getGraduationStatus(
   joinDate: string | Date | null | undefined,
@@ -65,15 +88,12 @@ export function getGraduationStatus(
 ): GraduationStatus {
   if (!joinDate) return 'Active';
   
-  const effectiveStartYear = startingYear || 1;
-  const yearsToGraduation = 5 - effectiveStartYear; // If start at 3rd year, 2 years to graduate
-  
-  const join = new Date(joinDate);
+  const batchYear = calculateBatchYear(joinDate, startingYear);
   const now = new Date();
+  const currentAcademicYearStart = getAcademicYearStart(now);
   
-  const yearsDiff = (now.getTime() - join.getTime()) / (1000 * 60 * 60 * 24 * 365);
-  
-  return yearsDiff >= yearsToGraduation ? 'Graduated' : 'Active';
+  // If current academic year has passed the batch year, student has graduated
+  return currentAcademicYearStart >= batchYear ? 'Graduated' : 'Active';
 }
 
 /**
@@ -90,20 +110,25 @@ export function getAcademicYearLabel(year: AcademicYear | number): string {
 }
 
 /**
- * Get batch label from join date (e.g., "2023 Batch")
+ * Get batch label from join date and year_of_study (e.g., "Batch 2030")
+ * This shows the passing out year, not the joining year
  */
-export function getBatchLabel(joinDate: string | Date | null | undefined): string {
-  if (!joinDate) return 'Unknown Batch';
-  const year = new Date(joinDate).getFullYear();
-  return `${year} Batch`;
+export function getBatchLabel(
+  joinDate: string | Date | null | undefined,
+  yearOfStudyAtJoin: number | null | undefined = 1
+): string {
+  const batchYear = calculateBatchYear(joinDate, yearOfStudyAtJoin);
+  return `Batch ${batchYear}`;
 }
 
 /**
- * Get batch year from join date
+ * Get batch year (passing out year) - exposed for direct use
  */
-export function getBatchYear(joinDate: string | Date | null | undefined): number | null {
-  if (!joinDate) return null;
-  return new Date(joinDate).getFullYear();
+export function getBatchYear(
+  joinDate: string | Date | null | undefined,
+  yearOfStudyAtJoin: number | null | undefined = 1
+): number {
+  return calculateBatchYear(joinDate, yearOfStudyAtJoin);
 }
 
 /**

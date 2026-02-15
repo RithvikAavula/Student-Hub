@@ -6,7 +6,9 @@ This document explains the dynamic academic year progression and historical subm
 
 ## Core Concepts
 
-### 1. Academic Year Calculation
+### 1. Academic Year Calculation (B.Tech Convention)
+
+In B.Tech colleges, the academic year starts in **August** (freshers join between August-October).
 
 The academic year is **dynamically calculated** based on:
 - **`year_of_study`**: The year the student registered as (1st, 2nd, 3rd, or 4th year)
@@ -15,29 +17,51 @@ The academic year is **dynamically calculated** based on:
 
 **Key Feature**: Students who join as 3rd year (lateral entry, transfer students, etc.) will only see 3rd and 4th year filters. They won't see 1st and 2nd year options since those don't apply to them.
 
-**Formula:**
-- If student joined in **June-December**: Academic year starts from the join year
-- If student joined in **January-May** (mid-year): Considered as joining the previous academic session
-- Academic year increments every June
+**Academic Year Start:**
+- Month >= August (8): Academic year = current calendar year
+- Month < August: Academic year = previous calendar year
+- Example: September 2026 = Academic year 2026-27, February 2026 = Academic year 2025-26
+
+**Current Year Formula:**
+```
+current_year = starting_year + (current_academic_year_start - join_academic_year_start)
+```
 - Minimum academic year = `year_of_study` (starting year)
 - Maximum academic year = 4 (capped)
-- After 4 years, student status becomes "Graduated"
+- After completing 4th year, student status becomes "Graduated"
+
+### 2. Batch Year (Passing Out Year)
+
+The **batch year** represents the year the student will graduate, not when they joined.
+
+**Batch Year Formula:**
+```
+batch_year = join_academic_year_start + (5 - year_of_study_at_join)
+```
+
+**Examples:**
+- 1st year joins Aug 2026 → Batch 2030 (2026 + 4)
+- 2nd year joins Aug 2026 → Batch 2029 (2026 + 3)
+- 3rd year joins Feb 2026 (academic year 2025) → Batch 2027 (2025 + 2)
+- 4th year joins Aug 2026 → Batch 2027 (2026 + 1)
 
 **Example 1 (Fresh student):**
 - Student registers as: 1st Year
-- Student joins: September 2023
-- Current date: February 2026
-- Calculated Academic Year: 3rd Year
+- Student joins: September 2026
+- Batch: 2030 (passing out year)
+- Current date: February 2028 (academic year 2027-28)
+- Calculated Academic Year: 2nd Year (1 + (2027 - 2026) = 2)
 - Available filters: 1st, 2nd, 3rd, 4th Year
 
 **Example 2 (Lateral entry):**
 - Student registers as: 3rd Year
-- Student joins: September 2023
-- Current date: February 2026
-- Calculated Academic Year: 4th Year (capped)
+- Student joins: September 2025
+- Batch: 2027 (passing out year)
+- Current date: February 2027 (academic year 2026-27)
+- Calculated Academic Year: 4th Year (3 + (2026 - 2025) = 4)
 - Available filters: 3rd, 4th Year only
 
-### 2. Data Immutability
+### 3. Data Immutability
 
 Once a certificate/submission is created, its `academic_year` field is:
 - **Set automatically** by a database trigger
@@ -216,10 +240,13 @@ interface YearWiseStats {
 
 | Function | Description |
 |----------|-------------|
-| `calculateAcademicYear(joinDate)` | Calculate current academic year |
-| `getGraduationStatus(joinDate)` | Get Active/Graduated status |
+| `getAcademicYearStart(date)` | Get academic year start (August-based) |
+| `calculateBatchYear(joinDate, yearOfStudy)` | Calculate batch/passing out year |
+| `calculateAcademicYear(joinDate, yearOfStudy)` | Calculate current academic year |
+| `getGraduationStatus(joinDate, yearOfStudy)` | Get Active/Graduated status |
 | `getAcademicYearLabel(year)` | Get label like "1st Year" |
-| `getBatchLabel(joinDate)` | Get label like "2023 Batch" |
+| `getBatchLabel(joinDate, yearOfStudy)` | Get label like "Batch 2030" (passing out year) |
+| `getBatchYear(joinDate, yearOfStudy)` | Get batch year as number |
 | `groupRecordsByYear(records)` | Group records by academic year |
 | `calculateYearWiseStats(records)` | Calculate statistics per year |
 | `fetchStudentRecordsByYear()` | Query records by year |

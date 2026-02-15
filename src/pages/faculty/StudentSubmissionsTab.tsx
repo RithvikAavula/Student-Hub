@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import StatusBadge from '@/components/features/StatusBadge';
 import CategoryBadge from '@/components/features/CategoryBadge';
 import ReviewRecordDialog from '@/components/features/ReviewRecordDialog';
-import { calculateAcademicYear, getAcademicYearLabel, calculateYearWiseStats, getBatchLabel, getAcademicYearFilterOptions } from '@/lib/academicYear';
+import { calculateAcademicYear, getAcademicYearLabel, calculateYearWiseStats, getBatchLabel, getBatchYear, getAcademicYearFilterOptions } from '@/lib/academicYear';
 
 interface RecordWithStudent extends StudentRecord {
   student?: Profile;
@@ -173,10 +173,10 @@ export default function StudentSubmissionsTab({
         pendingCount: countMap[p.id]?.pending || 0,
       }));
 
-      // Extract unique batch years for filtering
+      // Extract unique batch years (passing out years) for filtering
       const batchYears = [...new Set(
         (profiles || [])
-          .map(p => p.batch_year)
+          .map(p => getBatchYear(p.join_date, p.year_of_study))
           .filter((y): y is number => y !== null && y !== undefined)
       )].sort((a, b) => b - a);
       setAvailableBatchYears(batchYears);
@@ -296,7 +296,7 @@ export default function StudentSubmissionsTab({
                 <div>
                   <p className="font-medium">Currently in {getAcademicYearLabel(studentCurrentYear)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {selectedStudent.join_date ? getBatchLabel(selectedStudent.join_date) : 'Batch not set'}
+                    {selectedStudent.join_date ? getBatchLabel(selectedStudent.join_date, selectedStudent.year_of_study) : 'Batch not set'}
                   </p>
                 </div>
               </div>
@@ -558,7 +558,8 @@ export default function StudentSubmissionsTab({
   const filteredStudents = students.filter((s) => {
     const yearMatch = yearFilter === 'all' || s.year_of_study === parseInt(yearFilter);
     const sectionMatch = sectionFilter === 'all' || s.section === sectionFilter;
-    const batchMatch = batchYearFilter === 'all' || (s.batch_year && s.batch_year.toString() === batchYearFilter);
+    const studentBatchYear = getBatchYear(s.join_date, s.year_of_study);
+    const batchMatch = batchYearFilter === 'all' || (studentBatchYear && studentBatchYear.toString() === batchYearFilter);
     return yearMatch && sectionMatch && batchMatch;
   });
 
@@ -608,7 +609,7 @@ export default function StudentSubmissionsTab({
                 <SelectItem value="all">All Batches</SelectItem>
                 {availableBatchYears.map((year) => (
                   <SelectItem key={year} value={year.toString()}>
-                    {year} Batch
+                    Batch {year}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -661,8 +662,8 @@ export default function StudentSubmissionsTab({
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Registered As</span>
-                      <span className="font-medium">{getAcademicYearLabel(studentStartingYear)}</span>
+                      <span className="text-muted-foreground">Batch</span>
+                      <span className="font-medium">{getBatchLabel(student.join_date, student.year_of_study)}</span>
                     </div>
                     <div className="border-t pt-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">

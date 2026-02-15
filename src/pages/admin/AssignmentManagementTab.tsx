@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, UserPlus, UserMinus, Users, GraduationCap, Mail, Building2, ArrowLeft, Check, Filter } from 'lucide-react';
+import { Loader2, UserPlus, UserMinus, Users, GraduationCap, Mail, Building2, ArrowLeft, Check, Filter, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,6 +18,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+};
 
 interface StudentWithAssignments extends Profile {
   faculty_assignments?: {
@@ -255,59 +270,100 @@ export default function AssignmentManagementTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+        >
+          <Loader2 className="w-8 h-8 text-primary" />
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 hover:-translate-y-1">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Assignments</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {students.reduce((sum, s) => sum + (s.faculty_assignments?.length || 0), 0)}
+                <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+                  {students.reduce((sum, s) => {
+                    const assignments = Array.isArray(s.faculty_assignments) 
+                      ? s.faculty_assignments 
+                      : (s.faculty_assignments ? [s.faculty_assignments] : []);
+                    return sum + assignments.length;
+                  }, 0)}
                 </p>
               </div>
-              <UserPlus className="w-8 h-8 text-green-600 dark:text-green-400" />
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/30">
+                <Link2 className="w-6 h-6 text-white" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Students</p>
-                <p className="text-2xl font-bold text-foreground">{students.length}</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">{students.length}</p>
               </div>
-              <GraduationCap className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300 hover:-translate-y-1">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Assigned Students</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">
+                  {students.filter(s => {
+                    const assignments = Array.isArray(s.faculty_assignments) 
+                      ? s.faculty_assignments 
+                      : (s.faculty_assignments ? [s.faculty_assignments] : []);
+                    return assignments.length > 0;
+                  }).length}
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                <Check className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 hover:-translate-y-1">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Faculty</p>
-                <p className="text-2xl font-bold text-foreground">{faculty.length}</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">{faculty.length}</p>
               </div>
-              <Users className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <Users className="w-6 h-6 text-white" />
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Faculty Cards Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
+      <motion.div variants={itemVariants}>
+        <Card className="border-primary/20 shadow-lg shadow-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
             Faculty Members
           </CardTitle>
           <CardDescription>
@@ -375,6 +431,7 @@ export default function AssignmentManagementTab() {
           )}
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Student Assignment Dialog */}
       <Dialog open={showStudentDialog} onOpenChange={setShowStudentDialog}>
@@ -633,6 +690,6 @@ export default function AssignmentManagementTab() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }
