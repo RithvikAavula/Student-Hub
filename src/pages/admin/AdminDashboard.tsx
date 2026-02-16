@@ -9,6 +9,7 @@ import StudentManagementTab from './StudentManagementTab';
 import AssignmentManagementTab from './AssignmentManagementTab';
 import ReviewRecordsTab from '../faculty/ReviewRecordsTab';
 import RecordsTab from './RecordsTab';
+import AdminFraudReport from '@/components/features/AdminFraudReport';
 import {
   SidebarProvider,
   Sidebar,
@@ -24,7 +25,7 @@ import {
   SidebarTrigger,
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import { Users, UserCog, ClipboardList, NotebookText, User, BarChart3 } from 'lucide-react';
+import { Users, UserCog, ClipboardList, NotebookText, User, BarChart3, ShieldAlert } from 'lucide-react';
 import AdminAnalyticsDashboard from '@/components/features/AdminAnalyticsDashboard';
 import { ThemeToggle } from '@/components/theme/ThemeProvider';
 import { MorphingBlob } from '@/components/motion';
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
     { id: 'students', label: 'Students', icon: Users },
     { id: 'assignments', label: 'Assignments', icon: ClipboardList },
     { id: 'records', label: 'Records', icon: NotebookText },
+    { id: 'fraud-reports', label: 'Fraud Reports', icon: ShieldAlert },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'profile', label: 'Profile', icon: User },
   ];
@@ -73,6 +75,7 @@ export default function AdminDashboard() {
       case 'students': return <StudentManagementTab />;
       case 'assignments': return <AssignmentManagementTab />;
       case 'records': return <RecordsTab />;
+      case 'fraud-reports': return <AdminFraudReport />;
       case 'analytics': return <AdminAnalyticsDashboard />;
       case 'profile': return <AdminProfile />;
       default: return <FacultyManagementTab />;

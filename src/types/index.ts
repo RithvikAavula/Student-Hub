@@ -49,6 +49,10 @@ export interface StudentRecord {
   reviewed_at?: string;
   rejection_reason?: string;
   academic_year?: AcademicYear;
+  // Fraud detection fields
+  fraud_indicators?: FraudIndicators;
+  fraud_score?: number;
+  analysis_completed?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -222,4 +226,146 @@ export interface Message {
   edited_at?: string;
   deleted_for_sender?: boolean;
   deleted_for_everyone?: boolean;
+}
+
+// Certificate Validation System types
+export type CertificateValidationStatus = 'valid' | 'fake' | 'tampered';
+export type CertificateApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+// Fraud analysis types
+export interface TextAnomaly {
+  type: 'spacing' | 'font' | 'alignment' | 'case' | 'character' | 'editing_artifact';
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+  location?: string;
+}
+
+export interface FraudIndicators {
+  creation_software?: string;
+  modification_software?: string;
+  creation_date?: string;
+  modification_date?: string;
+  has_digital_signature: boolean;
+  signature_valid?: boolean;
+  author?: string;
+  producer?: string;
+  suspicious_indicators: string[];
+  metadata_stripped: boolean;
+  multiple_modifications: boolean;
+  pdf_version?: string;
+  page_count?: number;
+  is_scanned?: boolean;
+  has_layers?: boolean;
+  exif_data?: Record<string, any>;
+  // Text analysis fields
+  extracted_text?: string;
+  text_confidence?: number;
+  names_found?: string[];
+  name_match_score?: number;
+  name_verification_status?: 'verified' | 'suspicious' | 'mismatch' | 'not_found';
+  text_anomalies?: TextAnomaly[];
+  font_inconsistencies?: boolean;
+  text_extraction_method?: 'pdf_native' | 'ocr' | 'hybrid';
+  // Image edit detection fields
+  image_edit_detected?: boolean;
+  image_edit_confidence?: number;
+  image_suspicious_regions?: string[];
+}
+
+export interface CertificateSubmission {
+  id: string;
+  student_id: string;
+  certificate_code: string;
+  title: string;
+  description?: string;
+  issuing_organization: string;
+  issue_date: string;
+  file_url: string;
+  file_path?: string; // Alias for file_url used in storage access
+  file_hash: string;
+  validation_status: CertificateValidationStatus;
+  approval_status: CertificateApprovalStatus;
+  reviewed_by?: string;
+  reviewed_at?: string;
+  rejection_reason?: string;
+  submitted_at: string; // Alias for created_at
+  created_at: string;
+  updated_at: string;
+  // Fraud analysis fields
+  fraud_indicators?: FraudIndicators;
+  fraud_score?: number;
+  analysis_completed?: boolean;
+  // Extended fields from joins
+  student?: Profile;
+  reviewer?: Profile;
+}
+
+export interface VerifiedCertificate {
+  id: string;
+  certificate_code: string;
+  issuing_organization: string;
+  file_hash: string;
+  metadata?: Record<string, any>;
+  added_by?: string;
+  created_at: string;
+}
+
+export interface CertificateValidationLog {
+  id: string;
+  submission_id?: string;
+  certificate_code: string;
+  uploaded_file_hash?: string;
+  validation_status: CertificateValidationStatus;
+  validated_by?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export interface CertificateStats {
+  total_submissions: number;
+  pending_submissions: number;
+  approved_submissions: number;
+  rejected_submissions: number;
+  valid_certificates: number;
+  fake_certificates: number;
+  tampered_certificates: number;
+  recent_submissions: number;
+}
+
+export interface FraudulentCertificateReport {
+  id: string;
+  submission_id: string;
+  student_id: string;
+  student_name: string;
+  student_email: string;
+  student_roll_number: string;
+  certificate_code: string;
+  title: string;
+  issuing_organization: string;
+  issue_date: string;
+  validation_status: CertificateValidationStatus;
+  approval_status: CertificateApprovalStatus;
+  rejection_reason?: string;
+  reviewed_by_name?: string;
+  reviewed_at?: string;
+  file_url: string;
+  file_path: string;
+  file_hash: string;
+  fraud_indicators?: FraudIndicators;
+  fraud_score?: number;
+  submitted_at: string;
+}
+
+// For public certificate verification portal
+export interface CertificateValidationResult {
+  status: CertificateValidationStatus;
+  certificate?: {
+    certificate_code: string;
+    title?: string;
+    issuing_organization: string;
+    issue_date?: string;
+    student_name?: string;
+  };
+  message: string;
+  verified_at: string;
 }

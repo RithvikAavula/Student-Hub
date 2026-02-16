@@ -6,6 +6,7 @@ import ReviewRecordsTab from './ReviewRecordsTab';
 import StudentSubmissionsTab from './StudentSubmissionsTab';
 import AssignedStudentsTab from './AssignedStudentsTab';
 import WhatsAppMessages from '@/components/features/WhatsAppMessages';
+import { useAuth } from '@/hooks/useAuth';
 import {
   SidebarProvider,
   Sidebar,
@@ -21,7 +22,7 @@ import {
   SidebarTrigger,
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import { NotebookText, Users, User, LayoutDashboard, MessageCircle, BarChart3 } from 'lucide-react';
+import { Users, User, LayoutDashboard, MessageCircle, BarChart3, Award } from 'lucide-react';
 import FacultyAnalyticsDashboard from './FacultyAnalyticsDashboard';
 import { ThemeToggle } from '@/components/theme/ThemeProvider';
 import { MorphingBlob } from '@/components/motion';
@@ -50,6 +51,7 @@ interface SelectedNotification {
 }
 
 export default function FacultyDashboard() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('submissions');
   const [selectedNotification, setSelectedNotification] = useState<SelectedNotification | null>(null);
 
@@ -67,7 +69,7 @@ export default function FacultyDashboard() {
 
   const menuItems = [
     { id: 'submissions', label: 'Student Submissions', icon: LayoutDashboard },
-    { id: 'records', label: 'Review Records', icon: NotebookText },
+    { id: 'records', label: 'Review Certificates', icon: Award },
     { id: 'messages', label: 'Messages', icon: MessageCircle },
     { id: 'students', label: 'Students', icon: Users },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },

@@ -19,7 +19,7 @@ import {
   SidebarTrigger,
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import { NotebookText, User, MessageCircle, BarChart3 } from 'lucide-react';
+import { User, MessageCircle, BarChart3, Award } from 'lucide-react';
 import StudentAnalyticsDashboard from './StudentAnalyticsDashboard';
 import { ThemeToggle } from '@/components/theme/ThemeProvider';
 import { MorphingBlob } from '@/components/motion';
@@ -42,10 +42,10 @@ const menuItemVariants = {
 };
 
 export default function StudentDashboard() {
-  const [activeTab, setActiveTab] = useState('records');
+  const [activeTab, setActiveTab] = useState('certificates');
 
   const menuItems = [
-    { id: 'records', label: 'Activity Records', icon: NotebookText },
+    { id: 'certificates', label: 'Certificates', icon: Award },
     { id: 'messages', label: 'Messages', icon: MessageCircle },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'profile', label: 'Profile', icon: User },
@@ -160,7 +160,7 @@ export default function StudentDashboard() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  Manage your activity records and profile
+                  Manage your certificates and profile
                 </motion.p>
               </motion.div>
             )}
@@ -186,7 +186,7 @@ export default function StudentDashboard() {
                 exit="exit"
                 className="space-y-4"
               >
-                {activeTab === 'records' && <RecordsTab />}
+                {activeTab === 'certificates' && <RecordsTab />}
                 {activeTab === 'messages' && <WhatsAppMessages userRole="student" />}
                 {activeTab === 'analytics' && <StudentAnalyticsDashboard />}
                 {activeTab === 'profile' && <StudentProfile />}

@@ -9,6 +9,7 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import CertificateVerificationPage from '@/pages/CertificateVerificationPage';
 import StudentDashboard from '@/pages/student/StudentDashboard';
 import FacultyDashboard from '@/pages/faculty/FacultyDashboard';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -157,6 +158,9 @@ function AnimatedRoutes() {
         } />
         <Route path="/reset-password" element={
           <PageTransition><ResetPasswordPage /></PageTransition>
+        } />
+        <Route path="/verify-certificate" element={
+          <PageTransition><CertificateVerificationPage /></PageTransition>
         } />
         <Route
           path="/dashboard"

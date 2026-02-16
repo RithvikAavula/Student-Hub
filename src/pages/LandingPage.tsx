@@ -115,6 +115,12 @@ const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link to="/verify-certificate">
+            <AnimatedButton variant="outline" size="sm" className="hidden sm:flex">
+              <Shield className="w-4 h-4 mr-2" />
+              Verify Certificate
+            </AnimatedButton>
+          </Link>
           <ThemeToggle />
           <Link to="/login">
             <AnimatedButton variant="ghost" size="sm">

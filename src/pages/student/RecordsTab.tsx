@@ -192,14 +192,14 @@ export default function RecordsTab() {
       {/* Header with Academic Year Info */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-semibold">Activity Records</h3>
+          <h3 className="text-2xl font-semibold">Certificates</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Upload and track your extracurricular achievements
+            Submit and track your certificates
           </p>
         </div>
         <Button onClick={() => setShowAddDialog(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Record
+          Add Certificate
         </Button>
       </div>
 
@@ -307,8 +307,8 @@ export default function RecordsTab() {
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <p className="text-muted-foreground text-center">
                     {activeCategory === 'all'
-                      ? 'No activity records found. Start by adding your first achievement!'
-                      : `No ${activeCategory} records found.`}
+                      ? 'No certificates found. Start by adding your first certificate!'
+                      : `No ${activeCategory} certificates found.`}
                   </p>
                 </CardContent>
               </Card>

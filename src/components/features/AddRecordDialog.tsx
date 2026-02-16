@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { RecordCategory, AcademicYear } from '@/types';
+import { RecordCategory, AcademicYear, FraudIndicators } from '@/types';
 import { calculateAcademicYear, getAcademicYearLabel } from '@/lib/academicYear';
+import { analyzeCertificateForFraud } from '@/lib/certificates';
 import {
   Dialog,
   DialogContent,
@@ -31,21 +32,23 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [currentAcademicYear, setCurrentAcademicYear] = useState<AcademicYear>(1);
+  const [studentName, setStudentName] = useState<string>('');
 
-  // Fetch student's join date and year_of_study to calculate current academic year
+  // Fetch student's join date, year_of_study, and full_name to calculate current academic year
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('join_date, year_of_study')
+        .select('join_date, year_of_study, full_name')
         .eq('id', user.id)
         .single();
       
       if (!error && data) {
         const startingYear = (data.year_of_study || 1) as 1 | 2 | 3 | 4;
         setCurrentAcademicYear(calculateAcademicYear(data.join_date, startingYear));
+        setStudentName(data.full_name || '');
       }
     };
     
@@ -71,10 +74,21 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
 
     try {
       let certificateUrl = null;
+      let fraudAnalysis: { fraud_indicators: FraudIndicators; fraud_score: number; analysis_completed: boolean } | null = null;
 
       // Upload certificate if provided
       if (certificate) {
+        console.log('%c[ADD_RECORD] ========== CERTIFICATE UPLOAD STARTED ==========', 'background: green; color: white; font-size: 18px;');
+        console.log('[ADD_RECORD] Certificate file:', certificate.name, certificate.type, certificate.size);
+        console.log('[ADD_RECORD] Student name for verification:', studentName);
+        
         setUploading(true);
+        
+        // Run fraud analysis on the certificate with student name for verification
+        console.log('[ADD_RECORD] Calling analyzeCertificateForFraud...');
+        fraudAnalysis = await analyzeCertificateForFraud(certificate, studentName);
+        console.log('[ADD_RECORD] Fraud analysis completed:', fraudAnalysis);
+        
         const fileExt = certificate.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
@@ -92,7 +106,7 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
         setUploading(false);
       }
 
-      // Insert record with current academic year
+      // Insert record with current academic year and fraud analysis
       const { error } = await supabase.from('student_records').insert({
         student_id: user.id,
         title: formData.title,
@@ -103,13 +117,16 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
         certificate_url: certificateUrl,
         status: 'pending',
         academic_year: currentAcademicYear,
+        fraud_indicators: fraudAnalysis?.fraud_indicators || {},
+        fraud_score: fraudAnalysis?.fraud_score || 0,
+        analysis_completed: fraudAnalysis?.analysis_completed || false,
       });
 
       if (error) throw error;
 
       toast({
-        title: 'Record added successfully',
-        description: 'Your activity record has been submitted for review.',
+        title: 'Certificate added successfully',
+        description: 'Your certificate has been submitted for review.',
       });
 
       onSuccess();
@@ -117,7 +134,7 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
       resetForm();
     } catch (error: any) {
       toast({
-        title: 'Error adding record',
+        title: 'Error adding certificate',
         description: error.message,
         variant: 'destructive',
       });
@@ -142,9 +159,9 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px] max-h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Add Activity Record</DialogTitle>
+          <DialogTitle>Add Certificate</DialogTitle>
           <DialogDescription>
-            Upload a new achievement or activity for faculty review
+            Upload a new certificate for faculty review
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
@@ -157,7 +174,7 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
               <div>
                 <p className="text-sm font-medium">Submitting as {getAcademicYearLabel(currentAcademicYear)} Student</p>
                 <p className="text-xs text-muted-foreground">
-                  This record will be permanently stored under your {getAcademicYearLabel(currentAcademicYear)} submissions
+                  This certificate will be permanently stored under your {getAcademicYearLabel(currentAcademicYear)} submissions
                 </p>
               </div>
             </div>
@@ -259,7 +276,7 @@ export default function AddRecordDialog({ open, onOpenChange, onSuccess }: AddRe
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  Submit Record
+                  Submit Certificate
                 </>
               )}
             </Button>
